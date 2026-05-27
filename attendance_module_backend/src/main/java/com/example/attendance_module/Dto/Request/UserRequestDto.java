@@ -1,10 +1,6 @@
 package com.example.attendance_module.Dto.Request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,6 +8,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequestDto {
+
     private Long userId;
 
     private String userName;
@@ -22,8 +19,5 @@ public class UserRequestDto {
 
     private String userPassword;
 
-    private String roleName;
-
-
-    
+    private Long roleId;
 }

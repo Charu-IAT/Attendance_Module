@@ -22,39 +22,32 @@ public class UserService {
 
     public UserResponseDto createUser(UserRequestDto request) {
 
-        String normalizedRole = request.getRoleName()
-                .trim()
-                .toUpperCase();
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role not found"));
 
-        Role role = roleRepository.findByRole(normalizedRole)
-                .orElseGet(() -> roleRepository.save(
-                        Role.builder()
-                                .roleName(normalizedRole)
-                                .build()
-                ));
-
-        if (userRepository.existsByEmailAndRoleName(
+        if (userRepository.existsByEmailAndRoleId(
                 request.getEmail(),
-                normalizedRole)) {
+                request.getRoleId())) {
 
             throw new RuntimeException(
                     "Email already registered for this role");
         }
 
-        
         User user = User.builder()
                 .userName(request.getUserName())
                 .email(request.getEmail())
-                .userPassword(passwordEncoder.encode(request.getUserPassword()))
-                .roleName(request.getRoleName())
+                .userDes(request.getUserDes())
+                .userPassword(
+                        passwordEncoder.encode(request.getUserPassword()))
+                .roleId(role.getRoleId())
                 .build();
 
         userRepository.save(user);
 
-
         return UserResponseDto.builder()
                 .userName(user.getUserName())
                 .email(user.getEmail())
+                .userDes(user.getUserDes())
                 .roleName(role.getRoleName())
                 .build();
     }

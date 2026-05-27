@@ -8,12 +8,18 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.attendance_module.Model.User;
 
-public interface UserRepo extends JpaRepository<User, Long>{
-    @Query("SELECT u FROM User u WHERE u.email=:email")
+public interface UserRepo extends JpaRepository<User, Long> {
+
+    @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
-
-    boolean existsByEmailAndRoleName(String email, String normalizedRole);
-    
-    
+    @Query("""
+            SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
+            FROM User u
+            WHERE u.email = :email
+            AND u.roleId = :roleId
+            """)
+    boolean existsByEmailAndRoleId(
+            @Param("email") String email,
+            @Param("roleId") Long roleId);
 }

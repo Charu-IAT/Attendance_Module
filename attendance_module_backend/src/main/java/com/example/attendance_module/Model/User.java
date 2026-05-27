@@ -1,39 +1,33 @@
 package com.example.attendance_module.Model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name="user")
+@Table(name = "user")
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
-private String userName;
+    @Column(name = "user_name")
+    private String userName;
 
-private String email;
+    @Column(name = "user_mail")
+    private String email;
 
-private String userDes;
+    @Column(name = "user_des")
+    private String userDes;
 
-private String userPassword;
+    @Column(name = "user_password")
+    private String userPassword;
 
-private String roleName;
-
-
-    
+    @Column(name = "role_id")
+    private Long roleId;
 }

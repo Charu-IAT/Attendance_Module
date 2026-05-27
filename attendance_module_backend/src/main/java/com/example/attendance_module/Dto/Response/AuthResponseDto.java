@@ -1,22 +1,17 @@
 package com.example.attendance_module.Dto.Response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class AuthResponseDto {
 
- private String userName;
+    private String userName;
 
- private String token;
+    private String token;
 
- private String message;
-    
+    private String message;
 }
