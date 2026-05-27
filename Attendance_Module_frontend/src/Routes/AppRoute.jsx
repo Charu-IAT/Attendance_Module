@@ -7,7 +7,7 @@ const AdminDashboard = () => <h1>Admin Dashboard</h1>;
 
 const TrainerDashboard = () => <h1>Trainer Dashboard</h1>;
 
-const StudentDashboard = () => <h1>Student Dashboard</h1>;
+
 
 function App() {
 
@@ -21,7 +21,7 @@ function App() {
         <Route
           path="/admin-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -31,7 +31,7 @@ function App() {
           path="/trainer-dashboard"
           element={
             <ProtectedRoute
-              allowedRoles={["admin", "trainer"]}
+              allowedRoles={["ADMIN", "TRAINER"]}
             >
               <TrainerDashboard />
             </ProtectedRoute>

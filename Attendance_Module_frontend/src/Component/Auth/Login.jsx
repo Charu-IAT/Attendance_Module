@@ -20,7 +20,11 @@ const Login = () => {
   };
 
   const getDefaultRouteForRole = (role) => {
+    
+  console.log(role)
     switch (role) {
+
+    
       case ROLE.ADMIN:
         return "/admin-dashboard";
 
@@ -74,13 +78,13 @@ const Login = () => {
         loginData,
       );
 
-      console.log(response.data);
-
+      // console.log(response.data);
+      console.log(response.roleName);
       const data = response.data;
       setToken(data.token);
-      setRole(data.role);
+      setRole(data.roleName);
 
-      navigate(getDefaultRouteForRole(data.role));
+      navigate(getDefaultRouteForRole(data.roleName));
     } catch (error) {
       console.log(error);
 

@@ -14,4 +14,6 @@ public class AuthResponseDto {
     private String token;
 
     private String message;
+
+    private String roleName;
 }

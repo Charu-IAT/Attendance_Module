@@ -49,6 +49,7 @@ public class AuthService {
                 .userName(user.getUserName())
                 .token(token)
                 .message("Login successful")
+                .roleName(role.getRoleName())
                 .build();
     }
 }
