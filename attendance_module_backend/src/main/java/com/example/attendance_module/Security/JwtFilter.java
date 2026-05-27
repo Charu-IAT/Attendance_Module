@@ -28,7 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
     private boolean isPublicPath(String path) {
         if (path.equals("/api/auth/register")) return true;
         if (path.equals("/api/auth/login")) return true;
-        if(path.equals("/api/role")) return true;
         if (path.startsWith("/swagger-ui")) return true;
         if (path.startsWith("/v3/api-docs")) return true;
         return false;

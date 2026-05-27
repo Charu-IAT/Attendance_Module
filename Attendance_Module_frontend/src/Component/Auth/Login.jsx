@@ -77,8 +77,6 @@ const Login = () => {
         "http://localhost:8080/api/auth/login",
         loginData,
       );
-
-      // console.log(response.data);
       console.log(response.roleName);
       const data = response.data;
       setToken(data.token);
