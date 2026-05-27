@@ -1,5 +1,7 @@
 package com.example.attendance_module.Service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.example.attendance_module.Dto.Request.RoleRequestDto;
@@ -31,6 +33,18 @@ public class RoleService {
                 .roleName(role.getRoleName())
                 .build();
     }
+
+    public List<RoleResponseDto> viewAllRole(){
+        List<Role> roles=roleRepo.findAll();
+        if(roles.isEmpty()){
+            throw new RuntimeException("No role is created");
+        }
+        return roles.stream()
+              .map(role->RoleResponseDto.builder()
+                                        .roleName(role.getRoleName())
+                                        .build()).toList();
+    }
+
     }
     
 

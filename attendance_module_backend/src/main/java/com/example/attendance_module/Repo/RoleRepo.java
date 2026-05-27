@@ -1,5 +1,6 @@
 package com.example.attendance_module.Repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,7 @@ public interface RoleRepo extends JpaRepository<Role, Long> {
 
     @Query("SELECT r FROM Role r WHERE r.roleName = :roleName")
     Optional<Role> findByRole(@Param("roleName") String roleName);
+
+    @Query("SELECT r FROM ROle r")
+    List<Role> viewAllRoles();
 }
