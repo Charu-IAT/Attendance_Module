@@ -14,6 +14,6 @@ public interface RoleRepo extends JpaRepository<Role, Long> {
     @Query("SELECT r FROM Role r WHERE r.roleName = :roleName")
     Optional<Role> findByRole(@Param("roleName") String roleName);
 
-    @Query("SELECT r FROM ROle r")
+    @Query("SELECT r FROM Role r")
     List<Role> viewAllRoles();
 }

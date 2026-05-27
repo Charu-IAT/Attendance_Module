@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 @Tag(name = "Auth Controller",
 description = "Authentication APIs")
 public class AuthController {
