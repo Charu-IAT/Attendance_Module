@@ -115,13 +115,12 @@ Components Version
 11. Bootstrap v5.3x
 Frontend : React + Vite Database : MySQL Backend: Springboot + Java
 Backend Project Creation Method: The project is created by using Spring Boot Initializer
-Spring Boot Initializer Configuration:
-Setting Value
-Project: Maven
-Language: Java
-Name: attendance_module
-Packaging: Jar
-Java Version: 17
+Spring Boot Initializer Configuration: Setting Value
+ Project: Maven
+ Language: Java
+ Name: attendance_module
+ Packaging: Jar
+ Java Version: 17
 
 Frontend Project Creation Method: This project is created by using vite with React template
 
@@ -134,34 +133,67 @@ Node Version: 22.20.0(LTS)
 npm Version: 11.10.1x
 
 Dependencies for Backend:
-Parent Config (Version control) parent: groupId:org.springframework.boot artifactId:spring-boot-starter-parent version:3.2.5 properties: java.version: 17
 
-Core Dependencies: Spring web (Rest APIs): groupId: org.springframework.boot artifactId: spring-boot-starter-web (@RestController, @RequestMapping, Embedded Tomcat)
+Parent Config (Version control) 
+   parent: groupId:org.springframework.boot 
+   artifactId:spring-boot-starter-parent 
+   version:3.2.5 
+   properties: java.version: 17
+Core Dependencies: 
+   Spring web (Rest APIs): groupId: org.springframework.boot 
+   artifactId: spring-boot-starter-web (@RestController, @RequestMapping, Embedded Tomcat)
 
-Spring Data JPA (Database ORM) groupId: org.springframework.boot artifactId: spring-boot-starter-data-jpa (Repository Layer, CRUD operation, Hibernate Integration)
+Spring Data JPA (Database ORM) 
+   groupId: org.springframework.boot 
+   artifactId: spring-boot-starter-data-jpa (Repository Layer, CRUD operation, Hibernate Integration)
 
-MySQL Driver: groupId: com.mysql artifactId: mysql-connector-j (Used to connect MySQL 8.x database)
+MySQL Driver: 
+   groupId: com.mysql 
+   artifactId: mysql-connector-j (Used to connect MySQL 8.x database)
 
-Swagger(OpenAPI Documentation) groupId: org.springdoc artifactId: springdoc-openapi-starter-webmvc-ui version: 2.5.0
+Swagger(OpenAPI Documentation) 
+   groupId: org.springdoc 
+   artifactId: springdoc-openapi-starter-webmvc-ui 
+   version: 2.5.0
 
-Validation: groupId: org.springframework.boot artifactId: spring-boot-starter-validation (@NotNull, @Size, @Email, DTO validation)
+Validation: 
+   groupId: org.springframework.boot 
+   artifactId: spring-boot-starter-validation (@NotNull, @Size, @Email, DTO validation)
 
-Lombok: groupId: org.projectlombok artifactId: lombok optional: true (@Getter, @Setter, @Builder, @NoArgsConstructor)
+Lombok: 
+   groupId: org.projectlombok 
+   artifactId: lombok optional: true (@Getter, @Setter, @Builder, @NoArgsConstructor)
 
-DevTools (Development Only) groupId: org.springframework.boot artifactId: spring-boot-devtools scope: runtime optional: true (Auto restart, Faster development)
+DevTools (Development Only) 
+   groupId: org.springframework.boot 
+   artifactId: spring-boot-devtools 
+   scope: runtime 
+   optional: true (Auto restart, Faster development)
 
 Frontend Dependencies:
-"name": "cms-frontend", "version": "1.0.0", "private": true, "type": "module", "scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview" }
+"name": "attendancemodule", 
+"version": "1.1.0", 
+"private": true, 
+"type": "module", 
+"scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview" }
 
-"dependencies": { "react": "^18.2.0", "react-dom": "^18.2.0", "axios": "^1.6.0", "react-router-dom": "^6.22.0" }
+"dependencies": 
+{ "react": "^18.2.0",
+  "react-dom": "^18.2.0", 
+  "axios": "^1.6.0", 
+  "react-router-dom": "^6.22.0" }
 
-"devDependencies": { "vite": "^5.2.0", "@vitejs/plugin-react": "^4.2.0", "eslint": "^8.57.0" } Version Alignment: Frontend Version → 1.0.0 Backend Version → 1.0.0 Microservice Version → 1.0.0
+"devDependencies": 
+{ "vite": "^5.2.0", 
+"@vitejs/plugin-react": "^4.2.0", 
+"eslint": "^8.57.0" } 
+Version Alignment: Frontend Version → 1.1.0 Backend Version → 1.1.0 
 
 API Documentation
 The backend APIs are documented using Swagger (OpenAPI). Developers can access interactive API documentation at:
 
 http://localhost:8080/swagger-ui/
 
-Release Notes v1.0.0 (Initial Release)
+Release Notes v1.1.0 (Initial Release)
 
 => Attendance marking API => Attendance percentage calculation => Batch-wise attendance retrieval => Swagger documentation
