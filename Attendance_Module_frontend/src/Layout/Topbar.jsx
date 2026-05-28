@@ -3,7 +3,7 @@ import logo from "../assets/logo.png";
 
 function Topbar({ role, onLogout }) {
   const formatRole = (role) => {
-    if (role === "ADMIN") return "Super Admin";
+    if (role === "ADMIN") return "Admin";
     return "Trainer";
   };
 

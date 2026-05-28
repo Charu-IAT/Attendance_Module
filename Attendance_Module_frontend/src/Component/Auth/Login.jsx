@@ -6,7 +6,6 @@ import "./Login.css";
 const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const [loginData, setLoginData] = useState({
@@ -14,21 +13,13 @@ const Login = () => {
     password: "Charu5602@d",
   });
 
-  const ROLE = {
-    ADMIN: "admin",
-    TRAINER: "trainer",
-  };
 
   const getDefaultRouteForRole = (role) => {
-    
-  console.log(role)
     switch (role) {
-
-    
-      case ROLE.ADMIN:
+      case "admin":
         return "/admin-dashboard";
 
-      case ROLE.TRAINER:
+      case "trainer":
         return "/trainer-dashboard";
 
       default:
@@ -39,14 +30,10 @@ const Login = () => {
   const setToken = (token) => {
     if (token) {
       localStorage.setItem("token", token);
-
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
       return;
     }
-
     localStorage.removeItem("token");
-
     delete axios.defaults.headers.common["Authorization"];
   };
 
@@ -72,19 +59,16 @@ const Login = () => {
 
     try {
       setLoading(true);
-
       const response = await axios.post(
         "http://localhost:8080/api/auth/login",
         loginData,
       );
-      console.log(response.roleName);
       const data = response.data;
       setToken(data.token);
       setRole(data.roleName);
 
       navigate(getDefaultRouteForRole(data.roleName));
     } catch (error) {
-      console.log(error);
 
       setError(
         error.response?.data?.message ||
@@ -131,7 +115,7 @@ const Login = () => {
 
               <div className="password-wrapper">
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   id="password"
                   name="password"
                   className="login-input"
@@ -140,13 +124,6 @@ const Login = () => {
                   onChange={handleChange}
                   autoComplete="current-password"
                 />
-
-                <i
-                  className={`bi ${
-                    showPassword ? "bi-eye-slash" : "bi-eye"
-                  } eye-icon`}
-                  onClick={() => setShowPassword(!showPassword)}
-                ></i>
               </div>
             </div>
 
