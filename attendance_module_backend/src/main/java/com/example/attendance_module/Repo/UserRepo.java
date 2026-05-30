@@ -1,5 +1,6 @@
 package com.example.attendance_module.Repo;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
     boolean existsByEmailAndRoleId(
             @Param("email") String email,
             @Param("roleId") Long roleId);
+
+    @Query("SELECT u FROM User u")
+    List<User> viewUser();
 }
