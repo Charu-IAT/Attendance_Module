@@ -25,11 +25,12 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping("/role")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
     public RoleResponseDto createRole(@RequestBody RoleRequestDto request){
         return roleService.createRole(request);
     }
     
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin','ROLE_trainer')")
     @GetMapping("/viewAllRole")
     public List<RoleResponseDto> viewAllRole(){
         return roleService.viewAllRole();

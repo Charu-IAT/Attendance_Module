@@ -14,6 +14,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="user_id")
     private Long userId;
 
     @Column(name = "user_name")
@@ -30,4 +31,6 @@ public class User {
 
     @Column(name = "role_id")
     private Long roleId;
+
+
 }

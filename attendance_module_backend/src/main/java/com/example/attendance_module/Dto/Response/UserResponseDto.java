@@ -8,6 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserResponseDto {
+    
+    private Long userId;
 
     private String userName;
 
@@ -16,4 +18,5 @@ public class UserResponseDto {
     private String userDes;
 
     private String roleName;
+
 }

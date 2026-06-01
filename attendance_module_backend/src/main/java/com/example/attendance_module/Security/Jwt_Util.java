@@ -15,7 +15,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class Jwt_Util {
     private final String SECRET_KEY="ibhanagiletalenttechnologiesibhanagiletalenttechnologies";
-    private final long EXPIRATION=1000*60*60*24;
+    private final long EXPIRATION=1000*60*60;
     private final SecretKey secretKey=Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
     public String generateToken(String email, String role){
@@ -24,6 +24,7 @@ public class Jwt_Util {
                 .claim("role",role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis()+EXPIRATION))
+                .signWith(secretKey)
                 .compact();
     }
     public Claims getClaims(String token){

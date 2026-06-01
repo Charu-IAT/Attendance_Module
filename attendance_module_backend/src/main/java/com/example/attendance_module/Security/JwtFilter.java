@@ -79,12 +79,13 @@ public class JwtFilter extends OncePerRequestFilter {
                             email,
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                            
                     );
 
             authentication.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
             );
-
+            System.out.println("Role from token = " + role);
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);

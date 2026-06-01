@@ -1,5 +1,6 @@
 package com.example.attendance_module.Dto.Request;
 
+import jakarta.validation.constraints.Email;
 import lombok.*;
 
 @Getter
@@ -7,12 +8,11 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequestDto {
-
-    private Long userId;
+public class UserRequestDto { 
 
     private String userName;
 
+    @Email
     private String email;
 
     private String userDes;
