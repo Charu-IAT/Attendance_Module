@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name="student_details")
 public class Student {
     @Id
@@ -42,8 +44,12 @@ public class Student {
     @Column(name="student_dob")
     private LocalDate studentDob;
 
+    @Column(name = "student_course")
+    private String course;
+
     @Column(name="student_duration")
     private Long courseDuration;
+
 
     @Column(name="student_qualification")
     private String studentQualification;

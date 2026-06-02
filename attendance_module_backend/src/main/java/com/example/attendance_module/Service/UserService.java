@@ -32,7 +32,9 @@ public class UserService {
                         .email(request.getEmail()) 
                         .userDes(request.getUserDes()) 
                         .userPassword( passwordEncoder.encode(request.getUserPassword())) 
-                        .roleId(role.getRoleId()) .build(); userRepository.save(user); 
+                        .roleId(role.getRoleId()) .build(); 
+                        
+                        userRepository.save(user); 
                         
                         
         return UserResponseDto.builder() 

@@ -6,10 +6,15 @@ import com.example.attendance_module.Enum.StudentGender;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentRequestDto {
@@ -22,6 +27,8 @@ public class StudentRequestDto {
     private StudentGender studentGender;
 
     private LocalDate studentDob;
+
+    private String course;
 
     private Long courseDuration;
 

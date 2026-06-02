@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.attendance_module.Dto.Request.UpdatedUserRequestDto;
-import com.example.attendance_module.Dto.Request.UserRequestDto;
 import com.example.attendance_module.Dto.Response.UserResponseDto;
 import com.example.attendance_module.Service.UserService;
 
