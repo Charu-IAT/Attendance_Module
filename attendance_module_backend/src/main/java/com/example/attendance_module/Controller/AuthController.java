@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody UserRequestDto request) {
