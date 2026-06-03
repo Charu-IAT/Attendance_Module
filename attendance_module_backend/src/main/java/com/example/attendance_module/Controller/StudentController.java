@@ -1,8 +1,12 @@
 package com.example.attendance_module.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.attendance_module.Dto.Request.StudentRequestDto;
 import com.example.attendance_module.Dto.Response.StudentResponseDto;
+import com.example.attendance_module.Enum.StudentGender;
 import com.example.attendance_module.Service.StudentService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,5 +34,23 @@ public class StudentController {
     public StudentResponseDto createStudent( @RequestBody StudentRequestDto request){
         return studentService.createStudent(request);
     }
+
+    @GetMapping("/getStudent")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    public List<StudentResponseDto> viewStudents(){
+        return studentService.viewAlltheStudents();
+    }
+
+    @GetMapping("/getStudent/{studentId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    public List<StudentResponseDto> viewByStudentId(@PathVariable Long studentId){
+        return studentService.viewStudentById(studentId);
+    }
+
+    @GetMapping("/getStudent/{studentGender}")
+    public List<StudentResponseDto> viewStudentByGender(@PathVariable StudentGender gender){
+        return studentService.findByGender(gender);
+    }
+
 
 }

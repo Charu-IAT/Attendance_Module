@@ -31,7 +31,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
 
-    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody UserRequestDto request) {

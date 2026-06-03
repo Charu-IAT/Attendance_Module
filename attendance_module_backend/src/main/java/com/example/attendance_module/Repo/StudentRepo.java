@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.example.attendance_module.Enum.StudentGender;
 import com.example.attendance_module.Model.Student;
 
 
@@ -16,6 +17,9 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     List<Student> findByUserId(@Param("userId") Long userId);
 
     @Query("SELECT s FROM Student s WHERE s.studentGender = :gender")
-    List<Student> findByGender(@Param("gender") String gender);
+    List<Student> findByGender(@Param("gender")  StudentGender studentGender);
+
+    @Query("SELECT s FROM Student s")
+    List<Student> viewAllStudents();
 
 }
