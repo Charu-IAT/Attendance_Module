@@ -62,9 +62,17 @@ public class StudentController {
         return studentService.viewStudentByCourse(course);
     }
 
+    @GetMapping("/trainer/{trainerUserId}/students")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    public List<StudentResponseDto> viewStudentsByTrainer(@PathVariable Long trainerUserId) {
+        return studentService.getStudentsByTrainerUserId(trainerUserId);
+    }
+
+
     @PutMapping("/update/{studentId}")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
-    public String updateStudent(@PathVariable Long studentId, @RequestBody UpdateStudentRequest request){
+    public StudentResponseDto updateStudent(@PathVariable Long studentId,
+                                @RequestBody UpdateStudentRequest request) {
         return studentService.updateStudent(studentId, request);
     }
 

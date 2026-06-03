@@ -16,7 +16,7 @@ public interface CourseRepo extends JpaRepository<Course,Long> {
     @Query("SELECT c FROM Course c WHERE c.courseName = :courseName")
     Optional<Course> findByCourseName(@Param("courseName") String courseName);
     
-    @Query("SELECT c FROM Course c WHERE LOWER(c.courseName) = LOWER(:courseName)")
+    @Query("SELECT c FROM Course c WHERE c.courseName = :courseName")
     Course findByCourseNames(@Param("courseName") String courseName);
 
 

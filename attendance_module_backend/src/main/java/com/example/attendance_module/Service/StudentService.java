@@ -23,12 +23,29 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class StudentService {
+
+    private static final long trainer_id = 2L;
+
     @Autowired
     StudentRepo studentRepo;
     @Autowired
     UserRepo userRepo;
     @Autowired
     CourseRepo courseRepo;
+
+    private StudentResponseDto studentCourseConnect(Student student, Course course){
+        return StudentResponseDto.builder()
+                .studentId(student.getStudentId())
+                .studentName(student.getStudentName())
+                .email(student.getEmail())
+                .studentGender(student.getStudentGender())
+                .studentDob(student.getStudentDob())
+                .studentQualification(student.getStudentQualification())
+                .address(student.getAddress())
+                .courseName(course != null ? course.getCourseName() : null)
+                .courseDuration(course != null ? course.getCourseDuration() : null)
+                .build();
+    }
 
     public StudentResponseDto createStudent(StudentRequestDto request){
 
@@ -117,6 +134,7 @@ public class StudentService {
                                  .build();
                                 }).toList();
                             }
+
     public List<StudentResponseDto> findByGender(StudentGender studentGender) {
 
         List<Student> students = studentRepo.findByGender(studentGender);
@@ -171,26 +189,59 @@ public class StudentService {
                                     .build())
                                     .toList();
         }
-                                                          
-    public String updateStudent(Long studentId, UpdateStudentRequest request){
-        
 
-        Long result = studentRepo.updateStudent(
-                studentId,
-                request.getStudentName(),
-                request.getEmail(),
-                request.getStudentQualification(),
-                request.getStudentDob(),
-                request.getAddress(),
-                request.getStudentGender()
-              );
-                
-        if (result == 0) {
-            throw new RuntimeException("Student not found");
+
+    public List<StudentResponseDto> getStudentsByTrainerUserId(Long trainerUserId) {
+        User trainer = userRepo.findById(trainerUserId)
+                .orElseThrow(() -> new RuntimeException("Trainer not found with id: " + trainerUserId));
+
+        if (!trainer.getRoleId().equals(trainer_id)) {
+            throw new AccessDeniedException("The specified user is not a trainer");
         }
 
-        return "Student Updated Successfully";
+        Course course = courseRepo.findByCourseId(trainer.getCourseId())
+                .orElseThrow(() -> new RuntimeException("No course assigned to this trainer"));
+
+        List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
+        if (students.isEmpty()) {
+            throw new RuntimeException("No students found in course: " + course.getCourseName());
+        }
+        return students.stream().map(s -> studentCourseConnect(s, course)).toList();
     }
+
+    public StudentResponseDto updateStudent(Long studentId, UpdateStudentRequest request) {
+
+        Long result = studentRepo.updateStudent(
+            studentId,
+            request.getStudentName(),
+            request.getEmail(),
+            request.getStudentQualification(),
+            request.getStudentDob(),
+            request.getAddress(),
+            request.getStudentGender()
+    );
+
+    if (result == 0) {
+        throw new RuntimeException("Student not found");
+    }
+
+    Student student = studentRepo.findById(studentId)
+            .orElseThrow(() -> new RuntimeException("Student not found"));
+
+    Course course = courseRepo.findById(student.getCourseId()).orElse(null);
+
+    return StudentResponseDto.builder()
+            .studentId(student.getStudentId())
+            .studentName(student.getStudentName())
+            .email(student.getEmail())
+            .studentGender(student.getStudentGender())
+            .studentDob(student.getStudentDob())
+            .studentQualification(student.getStudentQualification())
+            .address(student.getAddress())
+            .courseName(course != null ? course.getCourseName() : null)
+            .courseDuration(course != null ? course.getCourseDuration() : null)
+            .build();
+}
 
     public String deleteStudent(Long studentId) {
 

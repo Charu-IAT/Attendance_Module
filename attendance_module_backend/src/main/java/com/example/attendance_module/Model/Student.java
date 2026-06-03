@@ -50,9 +50,6 @@ public class Student {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "user_id")
-    private Long userId;
-
     @Column(name="course_id")
     private Long courseId;
 

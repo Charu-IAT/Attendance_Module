@@ -88,20 +88,27 @@ public class UserService {
                             
     public List<UserResponseDto> getUsersByRoleId(Long roleId) {
 
-        List<User> users = userRepository.findByRoleId(roleId); 
-         
-         Role role = roleRepository.findById(roleId) 
-                       .orElseThrow(() -> new RuntimeException("Role not found")); 
-         
-        
-        return users.stream() .map(user -> UserResponseDto.builder() 
-                                                          .userId(user.getUserId()) 
-                                                          .userName(user.getUserName()) 
-                                                          .email(user.getEmail()) 
-                                                          .userDes(user.getUserDes()) 
-                                                          .roleName(role.getRoleName()) 
-                                                          .build()) .toList(); 
-        } 
+        List<User> users = userRepository.findByRoleId(roleId);
+
+        Role role = roleRepository.findById(roleId)
+            .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        return users.stream().map(user -> {
+
+                Course course = courseRepo.findById(user.getCourseId())
+                                   .orElse(null);
+
+                return UserResponseDto.builder()
+                                      .userId(user.getUserId())
+                                      .userName(user.getUserName())
+                                      .email(user.getEmail())
+                                      .userDes(user.getUserDes())
+                                      .roleName(role.getRoleName())
+                                      .courseName(course != null ? course.getCourseName() : null)
+                                      .build();
+                                    }).toList();
+        }
+
 
         public List<UserResponseDto> viewStudentByCourse(String courseName) {
 
@@ -128,27 +135,39 @@ public class UserService {
                                     }).toList();
 }
 
-        
-         
+          
     
-    public String updateUser(Long userId, UpdatedUserRequestDto request) {
+    public UserResponseDto updateUser(Long userId, UpdatedUserRequestDto request) {
 
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+    Role role = roleRepository.findById(request.getRoleId())
+            .orElseThrow(() -> new RuntimeException("Role not found"));
 
-        Long result = userRepository.updateUser(
-                userId,
-                request.getUserName(),
-                request.getEmail(),
-                request.getUserDes(),
-                role.getRoleId());
+    Long result = userRepository.updateUser(
+            userId,
+            request.getUserName(),
+            request.getEmail(),
+            request.getUserDes(),
+            role.getRoleId()
+    );
 
-        if (result == 0) {
-            throw new RuntimeException("User not found");
-        }
-
-        return "User Updated Successfully";
+    if (result == 0) {
+        throw new RuntimeException("User not found");
     }
+
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found after update"));
+
+    Course course = courseRepo.findById(user.getCourseId()).orElse(null);
+
+    return UserResponseDto.builder()
+            .userId(user.getUserId())
+            .userName(user.getUserName())
+            .email(user.getEmail())
+            .userDes(user.getUserDes())
+            .roleName(role.getRoleName())
+            .courseName(course != null ? course.getCourseName() : null)
+            .build();
+}
 
     public String deleteUser(Long userId) {
 

@@ -28,8 +28,6 @@ public class UpdateStudentRequest {
 
     private LocalDate studentDob;
 
-    private String course;
-
     private String studentQualification;
 
     private String address;

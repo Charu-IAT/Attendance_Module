@@ -50,7 +50,7 @@ public class UserController{
 
     @PutMapping("/updateUser/{userId}")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
-    public String updateUser(
+    public UserResponseDto updateUser(
             @PathVariable Long userId,
             @RequestBody UpdatedUserRequestDto request) {
 

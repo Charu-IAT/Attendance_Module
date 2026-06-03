@@ -1,6 +1,7 @@
 package com.example.attendance_module.Repo;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.attendance_module.Enum.StudentGender;
 import com.example.attendance_module.Model.Student;
+import com.example.attendance_module.Model.User;
 
 import jakarta.transaction.Transactional;
 
@@ -28,6 +30,9 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
 
     @Query("SELECT s FROM Student s WHERE s.courseId = :courseId")
     List<Student> findStudentByCourse(@Param("courseId") Long courseId);
+
+    @Query("SELECT u FROM User u WHERE u.userName = :userName")
+    Optional<User> findByUserName(@Param("userName") String userName);
 
     @Modifying
     @Transactional
