@@ -19,6 +19,7 @@ public class UserRequestDto {
 
     private String userPassword;
 
-
     private Long roleId;
+
+    private Long courseId;
 }

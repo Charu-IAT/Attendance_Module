@@ -2,6 +2,7 @@ package com.example.attendance_module.Controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +26,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController{
-    private final UserService userService;
+    @Autowired
+    UserService userService;
    
     @GetMapping("/viewUser")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
@@ -39,6 +41,13 @@ public class UserController{
         return userService.getUsersByRoleId(roleId);
     }
 
+    @GetMapping("/userbycourName/{courseName}")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin','ROLE_trainer')")
+    public List<UserResponseDto> viewStudentByCourse(
+            @PathVariable String courseName) {
+        return userService.viewStudentByCourse(courseName);
+    }
+
     @PutMapping("/updateUser/{userId}")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
     public String updateUser(
@@ -47,6 +56,7 @@ public class UserController{
 
         return userService.updateUser(userId, request);
     }
+    
 
     @DeleteMapping("/deleteUser/{userId}")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")

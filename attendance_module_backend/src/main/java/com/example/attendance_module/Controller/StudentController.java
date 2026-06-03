@@ -5,14 +5,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.attendance_module.Dto.Request.StudentRequestDto;
+import com.example.attendance_module.Dto.Request.UpdateStudentRequest;
 import com.example.attendance_module.Dto.Response.StudentResponseDto;
 import com.example.attendance_module.Enum.StudentGender;
 import com.example.attendance_module.Service.StudentService;
@@ -47,10 +50,30 @@ public class StudentController {
         return studentService.viewStudentById(studentId);
     }
 
-    @GetMapping("/getStudent/{studentGender}")
-    public List<StudentResponseDto> viewStudentByGender(@PathVariable StudentGender gender){
+    @GetMapping("/getStudent/gender/{studentGender}")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    public List<StudentResponseDto> viewStudentByGender(@PathVariable("studentGender") StudentGender gender){
         return studentService.findByGender(gender);
     }
+
+    @GetMapping("/getStudent/course/{course}")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    public List<StudentResponseDto> viewStudentByCourse(@PathVariable("course") String course){
+        return studentService.viewStudentByCourse(course);
+    }
+
+    @PutMapping("/update/{studentId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    public String updateStudent(@PathVariable Long studentId, @RequestBody UpdateStudentRequest request){
+        return studentService.updateStudent(studentId, request);
+    }
+
+    @DeleteMapping("/delete/{studentId}")
+     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+     public String deleteStudent(@PathVariable Long studentId){
+        return studentService.deleteStudent(studentId);
+     }
+
 
 
 }

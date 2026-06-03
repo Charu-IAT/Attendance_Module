@@ -3,6 +3,7 @@ package com.example.attendance_module.Controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,31 +28,26 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Auth Controller",
 description = "Authentication APIs")
 public class AuthController {
+    @Autowired
+    AuthService authService;
+    @Autowired
+    UserService userService;
 
-    private final AuthService authService;
-    private final UserService userService;
-
-    
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @Valid @RequestBody UserRequestDto request) {
 
         try {
-
             UserResponseDto response =
                     userService.createUser(request);
-
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(response);
 
         } catch (RuntimeException e) {
-
-            Map<String, String> error = new HashMap<>();
-
-            error.put("error", e.getMessage());
-
-            return ResponseEntity
+           Map<String, String> error = new HashMap<>();
+           error.put("error", e.getMessage());
+           return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(error);
         }
@@ -62,18 +58,13 @@ public class AuthController {
             @RequestBody AuthRequestDto request) {
 
         try {
-
             AuthResponseDto response =
                     authService.login(request);
-
             return ResponseEntity.ok(response);
 
         } catch (RuntimeException e) {
-
-            Map<String, String> error = new HashMap<>();
-
+           Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
-
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(error);
@@ -84,16 +75,13 @@ public class AuthController {
     public ResponseEntity<Map<String, String>>
     handleValidationErrors(
             MethodArgumentNotValidException ex) {
-
         Map<String, String> errors = new HashMap<>();
-
         ex.getBindingResult()
                 .getFieldErrors()
                 .forEach(err ->
                         errors.put(
                                 err.getField(),
                                 err.getDefaultMessage()));
-
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);

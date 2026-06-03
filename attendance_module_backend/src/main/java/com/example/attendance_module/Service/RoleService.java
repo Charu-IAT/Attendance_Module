@@ -2,6 +2,7 @@ package com.example.attendance_module.Service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.attendance_module.Dto.Request.RoleRequestDto;
@@ -14,7 +15,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class RoleService {
-    private final RoleRepo roleRepo;
+    @Autowired
+    RoleRepo roleRepo;
 
     public RoleResponseDto createRole(RoleRequestDto request){
 

@@ -16,6 +16,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
+
     @Query("""
             SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
             FROM User u
@@ -31,6 +32,9 @@ public interface UserRepo extends JpaRepository<User, Long> {
     
     @Query("SELECT u FROM User u WHERE u.roleId=:roleId")
     List<User> findByRoleId(@Param("roleId") Long roleId);
+
+    @Query("SELECT u FROM User u WHERE u.courseId = :courseId")
+    List<User> findByCourseId(@Param("courseId") Long courseId);
 
     @Modifying
     @Transactional

@@ -28,13 +28,11 @@ public class StudentRequestDto {
 
     private LocalDate studentDob;
 
-    private String course;
-
-    private Long courseDuration;
-
     private String studentQualification;
 
     private String address;
+
+    private Long courseId;
     
 
 

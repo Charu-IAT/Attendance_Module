@@ -1,6 +1,7 @@
 package com.example.attendance_module.Controller;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 @Tag(name="Role Controller", description = "Role Based APIs")
 @RequiredArgsConstructor
 public class RoleController {
-    private final RoleService roleService;
+    @Autowired
+    RoleService roleService;
 
     @PostMapping("/role")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")

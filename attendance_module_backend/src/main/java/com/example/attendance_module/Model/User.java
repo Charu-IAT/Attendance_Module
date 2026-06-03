@@ -29,9 +29,11 @@ public class User {
     @Column(name = "user_password")
     private String userPassword;
 
-
     @Column(name = "role_id")
     private Long roleId;
+
+    @Column(name="course_id")
+    private Long courseId;
 
 
 

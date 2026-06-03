@@ -1,5 +1,6 @@
 package com.example.attendance_module.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +17,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
-    private final UserRepo userRepository;
-    private final RoleRepo roleRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final Jwt_Util jwtUtil;
+    @Autowired
+    UserRepo userRepository;
+    @Autowired
+    RoleRepo roleRepository;
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    Jwt_Util jwtUtil;
 
     public AuthResponseDto login(AuthRequestDto request) {
 

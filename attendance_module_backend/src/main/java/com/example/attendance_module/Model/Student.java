@@ -44,13 +44,6 @@ public class Student {
     @Column(name="student_dob")
     private LocalDate studentDob;
 
-    @Column(name = "student_course")
-    private String course;
-
-    @Column(name="student_duration")
-    private Long courseDuration;
-
-
     @Column(name="student_qualification")
     private String studentQualification;
 
@@ -59,6 +52,9 @@ public class Student {
 
     @Column(name = "user_id")
     private Long userId;
+
+    @Column(name="course_id")
+    private Long courseId;
 
 
 

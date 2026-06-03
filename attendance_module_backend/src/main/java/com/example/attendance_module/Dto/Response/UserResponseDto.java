@@ -19,4 +19,6 @@ public class UserResponseDto {
 
     private String roleName;
 
+    private String courseName;
+
 }
