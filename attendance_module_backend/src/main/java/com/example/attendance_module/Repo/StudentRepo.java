@@ -31,6 +31,8 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     @Query("SELECT s FROM Student s WHERE s.courseId = :courseId")
     List<Student> findStudentByCourse(@Param("courseId") Long courseId);
 
+    long countByCourseId(Long courseId);
+
     @Query("SELECT u FROM User u WHERE u.userName = :userName")
     Optional<User> findByUserName(@Param("userName") String userName);
 
@@ -55,6 +57,9 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
         @Param("address") String address,
         @Param("studentGender") StudentGender studentGender
     );
+
+    @Query("SELECT s FROM Student s WHERE s.studentName = :studentName")
+    Optional<Student> findByStudentName(@Param("studentName") String studentName);
 
     @Modifying
     @Transactional

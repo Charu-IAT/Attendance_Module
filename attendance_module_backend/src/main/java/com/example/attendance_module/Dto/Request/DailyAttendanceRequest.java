@@ -1,8 +1,7 @@
 package com.example.attendance_module.Dto.Request;
 
 import java.time.LocalDate;
-
-import com.example.attendance_module.Enum.AttendanceStatus;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,15 +14,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AttendanceRequest {
-
-    private Long studentId;
-
-    private String studentName;
+public class DailyAttendanceRequest {
 
     private LocalDate attendanceDate;
 
-    private AttendanceStatus attendanceStatus;
-
+    private List<AttendanceRequest> attendanceRecords;
 
 }
