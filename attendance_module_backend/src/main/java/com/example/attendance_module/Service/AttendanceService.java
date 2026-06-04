@@ -75,7 +75,7 @@ public class AttendanceService {
 
         attendanceRepo.save(att);
 
-        Course course = courseRepo.findById(trainer.getCourseId()).orElse(null);
+        Course course = trainer.getCourseId() != null ? courseRepo.findById(trainer.getCourseId()).orElse(null) : null;
 
         return AttendanceResponse.builder()
                 .attendanceId(att.getAttendanceId())
@@ -129,7 +129,7 @@ public class AttendanceService {
     private AttendanceResponse toAttendanceResponse(Attendance attendance) {
         Student student = studentRepo.findById(attendance.getStudentId()).orElse(null);
         User trainer = userRepo.findById(attendance.getTrainerUserId()).orElse(null);
-        Course course = courseRepo.findById(attendance.getCourseId()).orElse(null);
+        Course course = attendance.getCourseId() != null ? courseRepo.findById(attendance.getCourseId()).orElse(null) : null;
 
         return AttendanceResponse.builder()
                 .attendanceId(attendance.getAttendanceId())
@@ -228,7 +228,7 @@ public class AttendanceService {
         return attendances.stream()
                 .map(att -> {
                     Student student = studentRepo.findById(att.getStudentId()).orElse(null);
-                    Course course = courseRepo.findById(trainer.getCourseId()).orElse(null);
+                    Course course = trainer.getCourseId() != null ? courseRepo.findById(trainer.getCourseId()).orElse(null) : null;
                     return AttendanceResponse.builder()
                             .attendanceId(att.getAttendanceId())
                             .studentName(student != null ? student.getStudentName() : null)
@@ -281,7 +281,7 @@ public class AttendanceService {
 
         attendanceRepo.save(att);
 
-        Course course = courseRepo.findById(trainer.getCourseId()).orElse(null);
+        Course course = trainer.getCourseId() != null ? courseRepo.findById(trainer.getCourseId()).orElse(null) : null;
 
         return AttendanceResponse.builder()
                 .attendanceId(att.getAttendanceId())

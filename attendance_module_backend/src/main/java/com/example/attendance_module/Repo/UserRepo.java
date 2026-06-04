@@ -2,6 +2,7 @@ package com.example.attendance_module.Repo;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +17,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
-
     @Query("""
             SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
             FROM User u
@@ -27,10 +27,17 @@ public interface UserRepo extends JpaRepository<User, Long> {
             @Param("email") String email,
             @Param("roleId") Long roleId);
 
+    @Query("""
+            SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
+            FROM User u
+            WHERE u.email = :email
+            """)
+    boolean existsByEmail(@Param("email") String email);
+
     @Query("SELECT u FROM User u")
     List<User> viewUser();
-    
-    @Query("SELECT u FROM User u WHERE u.roleId=:roleId")
+
+    @Query("SELECT u FROM User u WHERE u.roleId = :roleId")
     List<User> findByRoleId(@Param("roleId") Long roleId);
 
     @Query("SELECT u FROM User u WHERE u.courseId = :courseId")
@@ -39,20 +46,19 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Modifying
     @Transactional
     @Query("""
-    UPDATE User u
-    SET u.userName = :userName,
-        u.email = :email,
-        u.userDes = :userDes,
-        u.roleId = :roleId
-    WHERE u.userId = :userId
-       """)
-    Long updateUser(
-        @Param("userId") Long userId,
-        @Param("userName") String userName,
-        @Param("email") String userMail,
-        @Param("userDes") String userDes,
-        @Param("roleId") Long roleId
-    );
+        UPDATE User u
+        SET u.userName = :userName,
+            u.email = :email,
+            u.userDes = :userDes,
+            u.roleId = :roleId
+        WHERE u.userId = :userId
+    """)
+    int updateUser(
+            @Param("userId") Long userId,
+            @Param("userName") String userName,
+            @Param("email") String email,
+            @Param("userDes") String userDes,
+            @Param("roleId") Long roleId);
 
     @Modifying
     @Transactional

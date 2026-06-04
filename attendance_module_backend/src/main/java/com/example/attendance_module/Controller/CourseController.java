@@ -31,7 +31,7 @@ public class CourseController {
  @Autowired
  CourseService courseService;
 
- @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+
  @PostMapping("/addcourse")
  public CourseResponseDto createCourse(@RequestBody CourseRequestDto request){
     return courseService.createCourse(request);

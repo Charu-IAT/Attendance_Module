@@ -29,37 +29,63 @@ public class UserService {
     @Autowired
     CourseRepo courseRepo;
     
-    public UserResponseDto createUser(UserRequestDto request) { 
-        Role role = roleRepository.findById(request.getRoleId()) 
-                    .orElseThrow(() -> new RuntimeException("Role not found")); 
+   public UserResponseDto createUser(UserRequestDto request) {
 
-        Course course = courseRepo.findByCourseId(request.getCourseId())
-        .orElseThrow(() -> new RuntimeException("Course not found"));
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new RuntimeException("Email already exists");
+    }
 
-        if (userRepository.existsByEmailAndRoleId( request.getEmail(), request.getRoleId())) { 
-              throw new RuntimeException( "Email already registered for this role"); } 
-              
-        User user = User.builder() 
-                        .userName(request.getUserName()) 
-                        .email(request.getEmail()) 
-                        .userDes(request.getUserDes()) 
-                        .userPassword( passwordEncoder.encode(request.getUserPassword())) 
-                        .courseId(request.getCourseId())
-                        .roleId(role.getRoleId()) .build(); 
-                        
-                        userRepository.save(user); 
-                        
-                        
-        return UserResponseDto.builder() 
-                              .userId(user.getUserId()) 
-                              .userName(user.getUserName()) 
-                              .email(user.getEmail()) 
-                              .userDes(user.getUserDes()) 
-                              .roleName(role.getRoleName()) 
-                              .courseName(course.getCourseName())
-                              .build(); 
-                        } 
-                        
+    Role role = roleRepository.findById(request.getRoleId())
+            .orElseThrow(() -> new RuntimeException("Role not found"));
+
+    User user = new User();
+
+    user.setUserName(request.getUserName());
+    user.setEmail(request.getEmail());
+    user.setUserDes(request.getUserDes());
+    user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
+    user.setRoleId(request.getRoleId());
+
+
+    if (request.getRoleId() != null && request.getRoleId() == 1) {
+        if (request.getCourseId() != null) {
+            Course course = courseRepo.findById(request.getCourseId())
+                    .orElseThrow(() -> new RuntimeException("Course not found"));
+            user.setCourseId(course.getCourseId());
+        } else {
+            user.setCourseId(null);
+        }
+    }
+    else if (request.getRoleId() != null && request.getRoleId() == 2) {
+
+        if (request.getCourseId() == null) {
+            throw new RuntimeException("Course Id is required for Trainer");
+        }
+
+        Course course = courseRepo.findById(request.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        user.setCourseId(course.getCourseId());
+    }
+
+    User savedUser = userRepository.save(user);
+
+    Course course = null;
+
+    if (savedUser.getCourseId() != null) {
+        course = courseRepo.findById(savedUser.getCourseId())
+            .orElse(null);
+}
+
+    return UserResponseDto.builder()
+            .userId(savedUser.getUserId())
+            .userName(savedUser.getUserName())
+            .email(savedUser.getEmail())
+            .userDes(savedUser.getUserDes())
+            .roleName(role.getRoleName())
+            .courseName(course != null ? course.getCourseName() : null)
+            .build();
+}
                         
     public List<UserResponseDto> viewUser() { 
           List<User> users = userRepository.findAll();
@@ -74,8 +100,8 @@ public class UserService {
           return users.stream().map(user -> { 
                 Role role = roleRepository.findById(user.getRoleId()) 
                           .orElse(null);
-                Course course = courseRepo.findByCourseId(user.getCourseId())
-                          .orElse(null); 
+                Course course = user.getCourseId() != null ? courseRepo.findByCourseId(user.getCourseId())
+                          .orElse(null) : null; 
         return UserResponseDto.builder() 
                               .userId(user.getUserId()) 
                               .userName(user.getUserName()) 
@@ -95,8 +121,8 @@ public class UserService {
 
         return users.stream().map(user -> {
 
-                Course course = courseRepo.findById(user.getCourseId())
-                                   .orElse(null);
+                Course course = user.getCourseId() != null ? courseRepo.findById(user.getCourseId())
+                                   .orElse(null) : null;
 
                 return UserResponseDto.builder()
                                       .userId(user.getUserId())
@@ -142,7 +168,7 @@ public class UserService {
     Role role = roleRepository.findById(request.getRoleId())
             .orElseThrow(() -> new RuntimeException("Role not found"));
 
-    Long result = userRepository.updateUser(
+    int result = userRepository.updateUser(
             userId,
             request.getUserName(),
             request.getEmail(),
@@ -157,7 +183,7 @@ public class UserService {
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found after update"));
 
-    Course course = courseRepo.findById(user.getCourseId()).orElse(null);
+    Course course = user.getCourseId() != null ? courseRepo.findById(user.getCourseId()).orElse(null) : null;
 
     return UserResponseDto.builder()
             .userId(user.getUserId())

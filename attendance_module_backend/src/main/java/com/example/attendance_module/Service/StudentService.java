@@ -72,8 +72,8 @@ public class StudentService {
 
                 studentRepo.save(student);
 
-        Course course = courseRepo.findById(student.getCourseId())
-        .orElse(null);
+        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+        .orElse(null) : null;
         
             return StudentResponseDto.builder()
                                      .studentId(student.getStudentId())
@@ -96,8 +96,8 @@ public class StudentService {
         }
         return students.stream().map(student -> {
 
-        Course course = courseRepo.findById(student.getCourseId())
-                                  .orElse(null);
+        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+                                  .orElse(null) : null;
 
         return StudentResponseDto.builder()
                                  .studentId(student.getStudentId())
@@ -118,8 +118,8 @@ public class StudentService {
         
         return students.stream().map(student -> {
 
-        Course course = courseRepo.findById(student.getCourseId())
-                                  .orElse(null);
+        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+                                  .orElse(null) : null;
 
         return StudentResponseDto.builder()
                                  .studentId(student.getStudentId())
@@ -145,8 +145,8 @@ public class StudentService {
 
             return students.stream().map(student -> {
 
-        Course course = courseRepo.findById(student.getCourseId())
-                                  .orElse(null);
+        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+                                  .orElse(null) : null;
 
         return StudentResponseDto.builder()
                                  .studentId(student.getStudentId())
@@ -228,7 +228,7 @@ public class StudentService {
     Student student = studentRepo.findById(studentId)
             .orElseThrow(() -> new RuntimeException("Student not found"));
 
-    Course course = courseRepo.findById(student.getCourseId()).orElse(null);
+    Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId()).orElse(null) : null;
 
     return StudentResponseDto.builder()
             .studentId(student.getStudentId())

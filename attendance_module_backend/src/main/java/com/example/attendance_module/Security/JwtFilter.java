@@ -72,7 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             String email = jwtUtil.extractEmail(token);
-            String role = jwtUtil.extractRole(token);
+            String role = jwtUtil.extractRole(token) != null ? jwtUtil.extractRole(token).toLowerCase() : "";
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
