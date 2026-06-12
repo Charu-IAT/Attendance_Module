@@ -63,14 +63,14 @@ public class StudentController {
     }
 
     @GetMapping("/trainer/{trainerUserId}/students")
-    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin', 'ROLE_trainer')")
     public List<StudentResponseDto> viewStudentsByTrainer(@PathVariable Long trainerUserId) {
         return studentService.getStudentsByTrainerUserId(trainerUserId);
     }
 
 
     @PutMapping("/update/{studentId}")
-    @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin', 'ROLE_trainer')")
     public StudentResponseDto updateStudent(@PathVariable Long studentId,
                                 @RequestBody UpdateStudentRequest request) {
         return studentService.updateStudent(studentId, request);

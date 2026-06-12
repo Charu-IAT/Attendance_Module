@@ -33,19 +33,20 @@ public class StudentService {
     @Autowired
     CourseRepo courseRepo;
 
-    private StudentResponseDto studentCourseConnect(Student student, Course course){
-        return StudentResponseDto.builder()
-                .studentId(student.getStudentId())
-                .studentName(student.getStudentName())
-                .email(student.getEmail())
-                .studentGender(student.getStudentGender())
-                .studentDob(student.getStudentDob())
-                .studentQualification(student.getStudentQualification())
-                .address(student.getAddress())
-                .courseName(course != null ? course.getCourseName() : null)
-                .courseDuration(course != null ? course.getCourseDuration() : null)
-                .build();
-    }
+    private StudentResponseDto studentCourseConnect(Student student, Course course) {
+
+    return StudentResponseDto.builder()
+            .studentId(student.getStudentId())
+            .studentName(student.getStudentName())
+            .email(student.getEmail())
+            .studentGender(student.getStudentGender())
+            .studentDob(student.getStudentDob())
+            .studentQualification(student.getStudentQualification())
+            .address(student.getAddress())
+            .courseName(course != null ? course.getCourseName() : "No Course")
+            .courseDuration(course != null ? course.getCourseDuration() : null)
+            .build();
+}
 
     public StudentResponseDto createStudent(StudentRequestDto request){
 
@@ -192,22 +193,31 @@ public class StudentService {
 
 
     public List<StudentResponseDto> getStudentsByTrainerUserId(Long trainerUserId) {
-        User trainer = userRepo.findById(trainerUserId)
-                .orElseThrow(() -> new RuntimeException("Trainer not found with id: " + trainerUserId));
 
-        if (!trainer.getRoleId().equals(trainer_id)) {
-            throw new AccessDeniedException("The specified user is not a trainer");
-        }
+    User trainer = userRepo.findById(trainerUserId)
+            .orElseThrow(() -> new RuntimeException("Trainer not found"));
 
-        Course course = courseRepo.findByCourseId(trainer.getCourseId())
-                .orElseThrow(() -> new RuntimeException("No course assigned to this trainer"));
-
-        List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
-        if (students.isEmpty()) {
-            throw new RuntimeException("No students found in course: " + course.getCourseName());
-        }
-        return students.stream().map(s -> studentCourseConnect(s, course)).toList();
+    if (!trainer.getRoleId().equals(trainer_id)) {
+        throw new AccessDeniedException("The specified user is not a trainer");
     }
+
+    if (trainer.getCourseId() == null) {
+        throw new RuntimeException("No course assigned to this trainer");
+    }
+
+    Course course = courseRepo.findByCourseId(trainer.getCourseId())
+            .orElseThrow(() -> new RuntimeException("Course not found"));
+
+    List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
+
+    if (students == null || students.isEmpty()) {
+        throw new RuntimeException("Student not found");
+    }
+
+    return students.stream()
+            .map(student -> studentCourseConnect(student, course))
+            .toList();
+}
 
     public StudentResponseDto updateStudent(Long studentId, UpdateStudentRequest request) {
 
