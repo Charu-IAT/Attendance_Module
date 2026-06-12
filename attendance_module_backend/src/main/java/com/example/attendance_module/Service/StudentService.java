@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StudentService {
 
-    private static final long trainer_id = 2L;
+    private static final long trainer_id = 1L;
 
     @Autowired
     StudentRepo studentRepo;
@@ -192,19 +192,21 @@ public class StudentService {
         }
 
 
-    public List<StudentResponseDto> getStudentsByTrainerUserId(Long trainerUserId) {
+    public List<StudentResponseDto> getStudentsByTrainerUserId() {
 
-    
+    String email = SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getName();
 
-    User trainer = userRepo.findById(trainerUserId)
+    User trainer = userRepo.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Trainer not found"));
-    
-    System.out.println("Role Id = " + trainer.getRoleId());
 
-    if (!trainer.getRoleId().equals(trainer_id)) {
-        throw new AccessDeniedException("The specified user is not a trainer");
+    System.out.println("Logged In User = " + trainer.getEmail());
+    System.out.println("Role ID = " + trainer.getRoleId());
+
+    if (!trainer.getRoleId().equals(2L)) {
+        throw new AccessDeniedException("Only trainers can view students");
     }
-   
 
     if (trainer.getCourseId() == null) {
         throw new RuntimeException("No course assigned to this trainer");
@@ -215,15 +217,14 @@ public class StudentService {
 
     List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
 
-    if (students == null || students.isEmpty()) {
-        throw new RuntimeException("Student not found");
+    if (students.isEmpty()) {
+        throw new RuntimeException("No students found");
     }
 
     return students.stream()
             .map(student -> studentCourseConnect(student, course))
             .toList();
 }
-
     public StudentResponseDto updateStudent(Long studentId, UpdateStudentRequest request) {
 
         Long result = studentRepo.updateStudent(
