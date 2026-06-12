@@ -8,7 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.attendance_module.Dto.Request.AttendanceRequest;
-import com.example.attendance_module.Dto.Request.DailyAttendanceRequest;
 import com.example.attendance_module.Dto.Response.AttendanceResponse;
 import com.example.attendance_module.Dto.Response.DashboardResponse;
 import com.example.attendance_module.Enum.AttendanceStatus;
