@@ -194,12 +194,17 @@ public class StudentService {
 
     public List<StudentResponseDto> getStudentsByTrainerUserId(Long trainerUserId) {
 
+    
+
     User trainer = userRepo.findById(trainerUserId)
             .orElseThrow(() -> new RuntimeException("Trainer not found"));
+    
+    System.out.println("Role Id = " + trainer.getRoleId());
 
     if (!trainer.getRoleId().equals(trainer_id)) {
         throw new AccessDeniedException("The specified user is not a trainer");
     }
+   
 
     if (trainer.getCourseId() == null) {
         throw new RuntimeException("No course assigned to this trainer");
