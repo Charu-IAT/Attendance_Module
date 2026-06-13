@@ -53,12 +53,9 @@ public class Student {
     @Column(name="course_id")
     private Long courseId;
 
+    @Column(name="user_id")
+    private Long userId;
 
-
-
-
-
-
-
-    
+    @Column(name = "created_date", nullable = false)
+    private LocalDate createdDate;
 }

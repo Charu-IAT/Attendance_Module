@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import com.example.attendance_module.Model.Attendance;
 import com.example.attendance_module.Enum.AttendanceStatus;
 
+import jakarta.transaction.Transactional;
+
 public interface AttendanceRepo extends JpaRepository<Attendance, Long> {
 
     Optional<Attendance> findByStudentIdAndAttendanceDate(Long studentId, LocalDate date);
@@ -55,4 +57,14 @@ public interface AttendanceRepo extends JpaRepository<Attendance, Long> {
 
     @Query("SELECT a FROM Attendance a WHERE a.studentId = (SELECT s.studentId FROM Student s WHERE s.studentName = :studentName)")
     List<Attendance> findByStudentName(@Param("studentName") String studentName);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Attendance a WHERE a.studentId = :studentId")
+    void deleteByStudentId(@Param("studentId") Long studentId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Attendance a WHERE a.courseId = :courseId")
+    void deleteByCourseId(@Param("courseId") Long courseId);
 }

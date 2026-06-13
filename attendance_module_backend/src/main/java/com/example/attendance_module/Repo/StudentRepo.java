@@ -33,6 +33,12 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
 
     long countByCourseId(Long courseId);
 
+    @Query("SELECT COUNT(s) FROM Student s WHERE s.createdDate <= :date")
+    long countStudentsAsOfDate(@Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(s) FROM Student s WHERE s.courseId = :courseId AND s.createdDate <= :date")
+    long countStudentsByCourseAsOfDate(@Param("courseId") Long courseId, @Param("date") LocalDate date);
+
     @Query("SELECT u FROM User u WHERE u.userName = :userName")
     Optional<User> findByUserName(@Param("userName") String userName);
 
@@ -45,7 +51,8 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
         s.studentQualification=:studentQualification,
         s.studentDob=:studentDob,
         s.address=:address,
-        s.studentGender=:studentGender
+        s.studentGender=:studentGender,
+        s.createdDate=:createdDate
     WHERE s.studentId = :studentId
        """)
     Long updateStudent(
@@ -55,7 +62,8 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
         @Param("studentQualification") String studentQualification,
         @Param("studentDob") LocalDate studentDob,
         @Param("address") String address,
-        @Param("studentGender") StudentGender studentGender
+        @Param("studentGender") StudentGender studentGender,
+        @Param("createdDate") LocalDate createdDate
     );
 
     @Query("SELECT s FROM Student s WHERE s.studentName = :studentName")
@@ -66,5 +74,8 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     @Query("DELETE FROM  Student s WHERE s.studentId=:studentId")
     int deleteStudent(@Param("studentId") Long studentId);
 
-
+    @Modifying
+    @Transactional
+    @Query("UPDATE Student s SET s.courseId = null WHERE s.courseId = :courseId")
+    void disassociateCourse(@Param("courseId") Long courseId);
 }

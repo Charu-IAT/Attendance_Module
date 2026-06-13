@@ -1,5 +1,7 @@
 package com.example.attendance_module.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import com.example.attendance_module.Model.User;
 import com.example.attendance_module.Repo.CourseRepo;
 import com.example.attendance_module.Repo.StudentRepo;
 import com.example.attendance_module.Repo.UserRepo;
+import com.example.attendance_module.Repo.AttendanceRepo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class StudentService {
 
-    private static final long trainer_id = 1L;
 
     @Autowired
     StudentRepo studentRepo;
@@ -32,27 +34,59 @@ public class StudentService {
     UserRepo userRepo;
     @Autowired
     CourseRepo courseRepo;
+    @Autowired
+    AttendanceRepo attendanceRepo;
+
+    private void validateDob(LocalDate dob) {
+
+    if (dob == null) {
+        throw new RuntimeException("Date of Birth is required");
+    }
+
+    if (dob.isAfter(LocalDate.now())) {
+        throw new RuntimeException("Date of Birth cannot be in the future");
+    }
+
+    int age = Period.between(dob, LocalDate.now()).getYears();
+
+    if (age < 10) {
+        throw new RuntimeException("Student must be at least 10 years old");
+    }
+}
+
+    private StudentResponseDto toStudentResponseDto(Student student, Course course) {
+        User trainer = student.getUserId() != null ? userRepo.findById(student.getUserId()).orElse(null) : null;
+        return StudentResponseDto.builder()
+                .studentId(student.getStudentId())
+                .studentName(student.getStudentName())
+                .email(student.getEmail())
+                .studentGender(student.getStudentGender())
+                .studentDob(student.getStudentDob())
+                .studentQualification(student.getStudentQualification())
+                .address(student.getAddress())
+                .courseName(course != null ? course.getCourseName() : null)
+                .courseDuration(course != null ? course.getCourseDuration() : null)
+                .createdDate(student.getCreatedDate())
+                .userId(student.getUserId())
+                .trainerName(trainer != null ? trainer.getUserName() : null)
+                .build();
+    }
 
     private StudentResponseDto studentCourseConnect(Student student, Course course) {
-
-    return StudentResponseDto.builder()
-            .studentId(student.getStudentId())
-            .studentName(student.getStudentName())
-            .email(student.getEmail())
-            .studentGender(student.getStudentGender())
-            .studentDob(student.getStudentDob())
-            .studentQualification(student.getStudentQualification())
-            .address(student.getAddress())
-            .courseName(course != null ? course.getCourseName() : "No Course")
-            .courseDuration(course != null ? course.getCourseDuration() : null)
-            .build();
-}
+        StudentResponseDto dto = toStudentResponseDto(student, course);
+        if (dto.getCourseName() == null) {
+            dto.setCourseName("No Course");
+        }
+        return dto;
+    }
 
     public StudentResponseDto createStudent(StudentRequestDto request){
 
+        validateDob(request.getStudentDob());
+
         String email = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+            .getAuthentication()
+            .getName();
 
         User currentUser = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -68,7 +102,9 @@ public class StudentService {
                             .studentDob(request.getStudentDob())
                             .address(request.getAddress())
                             .courseId(request.getCourseId())
+                            .userId(request.getTrainerId())
                             .studentQualification(request.getStudentQualification())
+                            .createdDate(request.getCreatedDate() != null ? request.getCreatedDate() : LocalDate.now())
                             .build();
 
                 studentRepo.save(student);
@@ -76,92 +112,39 @@ public class StudentService {
         Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
         .orElse(null) : null;
         
-            return StudentResponseDto.builder()
-                                     .studentId(student.getStudentId())
-                                     .studentName(student.getStudentName())
-                                     .email(student.getEmail())
-                                     .studentGender(student.getStudentGender())
-                                     .studentDob(student.getStudentDob())
-                                     .address(student.getAddress())
-                                     .studentQualification(student.getStudentQualification())
-                                     .courseName(course != null ? course.getCourseName() : null)
-                                     .courseDuration(course != null ? course.getCourseDuration() : null)
-                                     .build();
+        return toStudentResponseDto(student, course);
     }
 
     public List<StudentResponseDto> viewAlltheStudents(){
         
         List<Student> students=studentRepo.findAll();
-        if(students.isEmpty()){
-            throw new RuntimeException("Student is not created");
-        }
         return students.stream().map(student -> {
-
-        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
-                                  .orElse(null) : null;
-
-        return StudentResponseDto.builder()
-                                 .studentId(student.getStudentId())
-                                 .studentName(student.getStudentName())
-                                 .email(student.getEmail())
-                                 .studentGender(student.getStudentGender())
-                                 .studentDob(student.getStudentDob())
-                                 .studentQualification(student.getStudentQualification())
-                                 .address(student.getAddress())
-                                 .courseName(course != null ? course.getCourseName() : null)
-                                 .courseDuration(course != null ? course.getCourseDuration() : null)
-                                 .build();
-                                }).toList();
-                            }
+            Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+                                      .orElse(null) : null;
+            return toStudentResponseDto(student, course);
+        }).toList();
+    }
 
     public List<StudentResponseDto> viewStudentById(Long studentId){
         List<Student> students=studentRepo.findByStudentId(studentId);
         
         return students.stream().map(student -> {
-
-        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
-                                  .orElse(null) : null;
-
-        return StudentResponseDto.builder()
-                                 .studentId(student.getStudentId())
-                                 .studentName(student.getStudentName())
-                                 .email(student.getEmail())
-                                 .studentGender(student.getStudentGender())
-                                 .studentDob(student.getStudentDob())
-                                 .studentQualification(student.getStudentQualification())
-                                 .address(student.getAddress())
-                                 .courseName(course != null ? course.getCourseName() : null)
-                                 .courseDuration(course != null ? course.getCourseDuration() : null)
-                                 .build();
-                                }).toList();
-                            }
+            Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+                                      .orElse(null) : null;
+            return toStudentResponseDto(student, course);
+        }).toList();
+    }
 
     public List<StudentResponseDto> findByGender(StudentGender studentGender) {
 
         List<Student> students = studentRepo.findByGender(studentGender);
 
-            if (students.isEmpty()) {
-            throw new RuntimeException("No Students Found");
-                }
-
             return students.stream().map(student -> {
-
-        Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
-                                  .orElse(null) : null;
-
-        return StudentResponseDto.builder()
-                                 .studentId(student.getStudentId())
-                                 .studentName(student.getStudentName())
-                                 .email(student.getEmail())
-                                 .studentGender(student.getStudentGender())
-                                 .studentDob(student.getStudentDob())
-                                 .studentQualification(student.getStudentQualification())
-                                 .address(student.getAddress())
-                                 .courseName(course != null ? course.getCourseName() : null)
-                                 .courseDuration(course != null ? course.getCourseDuration() : null)
-                                 .build();
-                                }).toList();
-                            }
+            Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId())
+                                      .orElse(null) : null;
+            return toStudentResponseDto(student, course);
+        }).toList();
+    }
 
     public List<StudentResponseDto> viewStudentByCourse(String courseName) {
 
@@ -173,22 +156,9 @@ public class StudentService {
 
             List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
 
-            if (students.isEmpty()) { 
-                throw new RuntimeException( "No students assigned to course : " + courseName);
-            }
-
-            return students.stream().map(student -> StudentResponseDto.builder()
-                                    .studentId(student.getStudentId())
-                                    .studentName(student.getStudentName())
-                                    .email(student.getEmail())
-                                    .studentGender(student.getStudentGender())
-                                    .studentDob(student.getStudentDob())
-                                    .studentQualification(student.getStudentQualification())
-                                    .address(student.getAddress())
-                                    .courseName(course.getCourseName())
-                                    .courseDuration(course.getCourseDuration())
-                                    .build())
-                                    .toList();
+            return students.stream()
+                .map(student -> toStudentResponseDto(student, course))
+                .toList();
         }
 
 
@@ -209,7 +179,8 @@ public class StudentService {
     }
 
     if (trainer.getCourseId() == null) {
-        throw new RuntimeException("No course assigned to this trainer");
+        // Return empty list instead of throwing
+        return List.of();
     }
 
     Course course = courseRepo.findByCourseId(trainer.getCourseId())
@@ -217,49 +188,41 @@ public class StudentService {
 
     List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
 
-    if (students.isEmpty()) {
-        throw new RuntimeException("No students found");
-    }
-
     return students.stream()
             .map(student -> studentCourseConnect(student, course))
             .toList();
 }
     public StudentResponseDto updateStudent(Long studentId, UpdateStudentRequest request) {
 
-        Long result = studentRepo.updateStudent(
-            studentId,
-            request.getStudentName(),
-            request.getEmail(),
-            request.getStudentQualification(),
-            request.getStudentDob(),
-            request.getAddress(),
-            request.getStudentGender()
-    );
+        validateDob(request.getStudentDob());
 
-    if (result == 0) {
-        throw new RuntimeException("Student not found");
+        Student existing = studentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        existing.setStudentName(request.getStudentName());
+        existing.setEmail(request.getEmail());
+        existing.setStudentGender(request.getStudentGender());
+        existing.setStudentDob(request.getStudentDob());
+        existing.setStudentQualification(request.getStudentQualification());
+        existing.setAddress(request.getAddress());
+        existing.setCourseId(request.getCourseId());
+        existing.setUserId(request.getTrainerId());
+        
+        if (request.getCreatedDate() != null) {
+            existing.setCreatedDate(request.getCreatedDate());
+        }
+
+        studentRepo.save(existing);
+
+        Course course = existing.getCourseId() != null ? courseRepo.findById(existing.getCourseId()).orElse(null) : null;
+
+        return toStudentResponseDto(existing, course);
     }
 
-    Student student = studentRepo.findById(studentId)
-            .orElseThrow(() -> new RuntimeException("Student not found"));
-
-    Course course = student.getCourseId() != null ? courseRepo.findById(student.getCourseId()).orElse(null) : null;
-
-    return StudentResponseDto.builder()
-            .studentId(student.getStudentId())
-            .studentName(student.getStudentName())
-            .email(student.getEmail())
-            .studentGender(student.getStudentGender())
-            .studentDob(student.getStudentDob())
-            .studentQualification(student.getStudentQualification())
-            .address(student.getAddress())
-            .courseName(course != null ? course.getCourseName() : null)
-            .courseDuration(course != null ? course.getCourseDuration() : null)
-            .build();
-}
-
     public String deleteStudent(Long studentId) {
+
+        // First clean up attendance records
+        attendanceRepo.deleteByStudentId(studentId);
 
         int result = studentRepo.deleteStudent(studentId);
 

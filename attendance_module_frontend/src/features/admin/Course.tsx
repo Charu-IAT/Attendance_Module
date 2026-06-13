@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FiEdit, FiEye, FiPlus, FiX, FiBook, FiRefreshCw } from 'react-icons/fi';
+import { FiEdit, FiEye, FiPlus, FiX, FiBook, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
 import type { CourseDTO } from '../../types/course.types';
-import { getAllCourses, addCourse, updateCourse } from '../../api/services';
+import { getAllCourses, addCourse, updateCourse, deleteCourse } from '../../api/services';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +32,7 @@ export default function Course() {
   const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [modalMode, setModalMode] = useState<ModalMode>(null);
@@ -130,6 +131,26 @@ export default function Course() {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (course: CourseDTO) => {
+    if (
+      !window.confirm(
+        `Delete course "${course.courseName}"? This will disassociate all assigned students and trainers, and delete all associated attendance records. This cannot be undone.`
+      )
+    )
+      return;
+
+    setDeleting(course.courseId);
+    try {
+      await deleteCourse(course.courseId);
+      setCourses((prev) => prev.filter((c) => c.courseId !== course.courseId));
+    } catch (err: unknown) {
+      console.error('Failed to delete course:', err);
+      alert('Failed to delete course. Please try again.');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -240,6 +261,15 @@ export default function Course() {
                         onClick={() => openModal('edit', course)}
                       >
                         <FiEdit />
+                      </button>
+                      <button
+                        className="icon-btn delete"
+                        aria-label={`Delete ${course.courseName}`}
+                        title="Delete course"
+                        disabled={deleting === course.courseId}
+                        onClick={() => handleDelete(course)}
+                      >
+                        <FiTrash2 />
                       </button>
                     </td>
                   </tr>

@@ -5,7 +5,6 @@ export interface UserDTO {
   userId: number;
   userName: string;
   email: string;
-  userDes: string;
   roleName: string;
   courseName: string | null;
 }
@@ -29,7 +28,6 @@ export interface AuthResponse {
 export interface UpdateUserPayload {
   userName: string;
   email: string;
-  userDes: string;
   roleId: number;
   /** Optional: ID of the course to assign to this user */
   courseId?: number | null;
@@ -39,7 +37,6 @@ export interface UpdateUserPayload {
 export interface UserRequestPayload {
   userName: string;
   email: string;
-  userDes: string;
   userPassword: string;
   roleId: number;
   courseId?: number | null;

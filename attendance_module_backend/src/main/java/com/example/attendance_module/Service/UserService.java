@@ -42,7 +42,6 @@ public class UserService {
 
     user.setUserName(request.getUserName());
     user.setEmail(request.getEmail());
-    user.setUserDes(request.getUserDes());
     user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
     user.setRoleId(request.getRoleId());
 
@@ -81,7 +80,6 @@ public class UserService {
             .userId(savedUser.getUserId())
             .userName(savedUser.getUserName())
             .email(savedUser.getEmail())
-            .userDes(savedUser.getUserDes())
             .roleName(role.getRoleName())
             .courseName(course != null ? course.getCourseName() : null)
             .build();
@@ -89,13 +87,6 @@ public class UserService {
                         
     public List<UserResponseDto> viewUser() { 
           List<User> users = userRepository.findAll();
-
-
-          if (users.isEmpty()) { 
-             throw new RuntimeException("User is Not Created"); 
-            } 
-
-          
 
           return users.stream().map(user -> { 
                 Role role = roleRepository.findById(user.getRoleId()) 
@@ -106,7 +97,6 @@ public class UserService {
                               .userId(user.getUserId()) 
                               .userName(user.getUserName()) 
                               .email(user.getEmail()) 
-                              .userDes(user.getUserDes()) 
                               .roleName(role != null ? role.getRoleName() : null) 
                               .courseName(course != null ? course.getCourseName() : null)
                               .build(); }).toList();
@@ -128,7 +118,6 @@ public class UserService {
                                       .userId(user.getUserId())
                                       .userName(user.getUserName())
                                       .email(user.getEmail())
-                                      .userDes(user.getUserDes())
                                       .roleName(role.getRoleName())
                                       .courseName(course != null ? course.getCourseName() : null)
                                       .build();
@@ -154,7 +143,6 @@ public class UserService {
                                     .userId(user.getUserId())
                                     .userName(user.getUserName())
                                     .email(user.getEmail())
-                                    .userDes(user.getUserDes())
                                     .roleName(role != null ? role.getRoleName() : null)
                                     .courseName(course.getCourseName())
                                     .build();
@@ -172,7 +160,6 @@ public class UserService {
             userId,
             request.getUserName(),
             request.getEmail(),
-            request.getUserDes(),
             role.getRoleId()
     );
 
@@ -189,7 +176,6 @@ public class UserService {
             .userId(user.getUserId())
             .userName(user.getUserName())
             .email(user.getEmail())
-            .userDes(user.getUserDes())
             .roleName(role.getRoleName())
             .courseName(course != null ? course.getCourseName() : null)
             .build();

@@ -49,7 +49,6 @@ public interface UserRepo extends JpaRepository<User, Long> {
         UPDATE User u
         SET u.userName = :userName,
             u.email = :email,
-            u.userDes = :userDes,
             u.roleId = :roleId
         WHERE u.userId = :userId
     """)
@@ -57,11 +56,15 @@ public interface UserRepo extends JpaRepository<User, Long> {
             @Param("userId") Long userId,
             @Param("userName") String userName,
             @Param("email") String email,
-            @Param("userDes") String userDes,
             @Param("roleId") Long roleId);
 
     @Modifying
     @Transactional
     @Query("DELETE FROM User u WHERE u.userId = :userId")
     int deleteUser(@Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.courseId = null WHERE u.courseId = :courseId")
+    void disassociateCourse(@Param("courseId") Long courseId);
 }

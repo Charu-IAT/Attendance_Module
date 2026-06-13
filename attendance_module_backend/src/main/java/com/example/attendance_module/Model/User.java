@@ -23,9 +23,6 @@ public class User {
     @Column(name = "user_mail")
     private String email;
 
-    @Column(name = "user_des")
-    private String userDes;
-
     @Column(name = "user_password")
     private String userPassword;
 

@@ -50,6 +50,10 @@ public class CourseController {
    return courseService.updateCourseById(courseId, request);
  }
 
-
+  @PreAuthorize("hasAnyAuthority('ROLE_admin')")
+  @DeleteMapping("/delete/{courseId}")
+  public String deleteCourse(@PathVariable Long courseId){
+    return courseService.deleteCourse(courseId);
+  }
 
 }

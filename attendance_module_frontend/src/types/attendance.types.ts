@@ -1,7 +1,7 @@
 // ─── Attendance Types ─────────────────────────────────────────────────────────
 
 /** Valid attendance status values accepted by the backend. */
-export type AttendanceStatus = 'Present' | 'Absent' | 'Abscont';
+export type AttendanceStatus = 'Present' | 'Absent' | 'Abscont' | 'No Record';
 
 // ─── Response DTOs ────────────────────────────────────────────────────────────
 

@@ -8,6 +8,7 @@ import {
   createAttendanceByName,
   getAttendanceByDate,
   updateAttendanceByStudentId,
+  updateAttendanceByStudentName,
   viewAllUsers,
 } from '../../api/services';
 import { getUserId, getUserName, setUserId } from '../../hooks/useAuth';
@@ -51,7 +52,7 @@ export default function AttendanceManagement() {
         const record = existing.find((r) => r.studentName === student.studentName);
         return {
           student,
-          status: (record?.attendanceStatus ?? 'Present') as AttendanceStatus,
+          status: (record?.attendanceStatus ?? 'No Record') as AttendanceStatus,
           attendanceId: record?.attendanceId ?? null,
           saved: !!record,
           saving: false,
@@ -117,7 +118,10 @@ export default function AttendanceManagement() {
           }
         }
 
-        setRows(buildRows(studentsData, attendanceData));
+        const activeStudents = studentsData.filter(
+          (student) => !student.createdDate || student.createdDate <= selectedDate
+        );
+        setRows(buildRows(activeStudents, attendanceData));
       } catch (err) {
         console.error('Failed to load attendance data:', err);
         setError('Failed to load data. Please try again.');
@@ -146,6 +150,7 @@ export default function AttendanceManagement() {
 
   // ── Save a single row ──────────────────────────────────────────────────────
   const saveRow = async (row: AttendanceRow): Promise<void> => {
+    if (row.status === 'No Record') return;
     // Mark this row as saving
     setRows((prev) =>
       prev.map((r) =>
@@ -197,7 +202,8 @@ export default function AttendanceManagement() {
     setBulkSaving(true);
     setSuccessMsg('');
 
-    await Promise.all(rows.map((row) => saveRow(row)));
+    const rowsToSave = rows.filter((r) => r.status !== 'No Record' && !r.saved);
+    await Promise.all(rowsToSave.map((row) => saveRow(row)));
 
     setBulkSaving(false);
     setSuccessMsg('Attendance saved successfully!');
@@ -314,7 +320,7 @@ export default function AttendanceManagement() {
                     <td>{date}</td>
                     <td>
                       <select
-                        className={`status-select ${row.status.toLowerCase()}`}
+                        className={`status-select ${row.status.toLowerCase().replace(/\s+/g, '')}`}
                         value={row.status}
                         disabled={row.saving}
                         onChange={(e) =>
@@ -324,6 +330,9 @@ export default function AttendanceManagement() {
                           )
                         }
                       >
+                        {row.attendanceId === null && (
+                          <option value="No Record" disabled hidden>No Record</option>
+                        )}
                         <option value="Present">Present</option>
                         <option value="Absent">Absent</option>
                         <option value="Abscont">Abscont</option>

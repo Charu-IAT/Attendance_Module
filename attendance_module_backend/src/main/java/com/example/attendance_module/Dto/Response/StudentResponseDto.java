@@ -34,7 +34,9 @@ public class StudentResponseDto {
 
     private String address;
 
+    private LocalDate createdDate;
    
+    private Long userId;
 
-    
+    private String trainerName;
 }

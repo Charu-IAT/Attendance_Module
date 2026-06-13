@@ -1938,6 +1938,12 @@ TRAINER DASHBOARD CSS
   color: #854d0e;
 }
 
+.status-select.norecord {
+  border: 2px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
 .attendance-actions {
   display: flex;
   align-items: center;

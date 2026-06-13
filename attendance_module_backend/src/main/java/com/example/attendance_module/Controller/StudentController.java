@@ -22,6 +22,7 @@ import com.example.attendance_module.Enum.StudentGender;
 import com.example.attendance_module.Service.StudentService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -35,8 +36,10 @@ public class StudentController {
 
     @PostMapping("/addStudent")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
-    public StudentResponseDto createStudent( @RequestBody StudentRequestDto request){
-        return studentService.createStudent(request);
+    public ResponseEntity<StudentResponseDto> createStudent(
+        @Valid @RequestBody StudentRequestDto request) {
+
+    return ResponseEntity.ok(studentService.createStudent(request));
     }
 
     @GetMapping("/getStudent")

@@ -5,6 +5,7 @@ import type { CourseDTO } from '../../types/course.types';
 import {
   getAllStudents,
   addStudent,
+  updateStudent,
   deleteStudent,
   getAllCourses,
   viewUsersByRole,
@@ -22,7 +23,10 @@ interface StudentFormData {
   address: string;
   courseId: number | '';
   trainerId: number | '';
+  createdDate: string;
 }
+
+const today = new Date().toISOString().split('T')[0];
 
 const emptyForm: StudentFormData = {
   studentName: '',
@@ -33,9 +37,10 @@ const emptyForm: StudentFormData = {
   address: '',
   courseId: '',
   trainerId: '',
+  createdDate: today,
 };
 
-type ModalMode = 'add' | 'view' | null;
+type ModalMode = 'add' | 'edit' | 'view' | null;
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -51,6 +56,7 @@ export default function StudentDetails() {
 
   // ── modal state ──────────────────────────────────────────────────────────────
   const [modalMode, setModalMode] = useState<ModalMode>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
   const [viewStudent, setViewStudent] = useState<StudentDTO | null>(null);
   const [formData, setFormData] = useState<StudentFormData>(emptyForm);
 
@@ -91,9 +97,28 @@ export default function StudentDetails() {
     setModalMode('view');
   };
 
+  const openEditModal = (student: StudentDTO) => {
+    const matchedCourse = courses.find((c) => c.courseName === student.courseName);
+
+    setFormData({
+      studentName: student.studentName,
+      email: student.email,
+      studentGender: student.studentGender,
+      studentDob: student.studentDob,
+      studentQualification: student.studentQualification,
+      address: student.address,
+      courseId: matchedCourse?.courseId ?? '',
+      trainerId: student.userId ?? '',
+      createdDate: student.createdDate || today,
+    });
+    setSelectedStudentId(student.studentId);
+    setModalMode('edit');
+  };
+
   const closeModal = () => {
     setModalMode(null);
     setViewStudent(null);
+    setSelectedStudentId(null);
     setFormData(emptyForm);
   };
 
@@ -117,7 +142,8 @@ export default function StudentDetails() {
       !formData.studentQualification.trim() ||
       !formData.address.trim() ||
       formData.courseId === '' ||
-      formData.trainerId === ''
+      formData.trainerId === '' ||
+      !formData.createdDate
     ) {
       alert('Please fill in all required fields.');
       return;
@@ -132,16 +158,24 @@ export default function StudentDetails() {
       address: formData.address.trim(),
       courseId: Number(formData.courseId),
       trainerId: Number(formData.trainerId),
+      createdDate: formData.createdDate || today,
     };
 
     setSaving(true);
     try {
-      const res = await addStudent(payload);
-      setStudents((prev) => [...prev, res.data]);
+      if (modalMode === 'edit' && selectedStudentId !== null) {
+        const res = await updateStudent(selectedStudentId, payload);
+        setStudents((prev) =>
+          prev.map((s) => (s.studentId === selectedStudentId ? res.data : s)),
+        );
+      } else {
+        const res = await addStudent(payload);
+        setStudents((prev) => [...prev, res.data]);
+      }
       closeModal();
     } catch (err) {
-      console.error('Failed to add student:', err);
-      alert('Failed to add student. Please try again.');
+      console.error(`Failed to ${modalMode === 'edit' ? 'update' : 'add'} student:`, err);
+      alert(`Failed to ${modalMode === 'edit' ? 'update' : 'add'} student. Please try again.`);
     } finally {
       setSaving(false);
     }
@@ -254,8 +288,8 @@ export default function StudentDetails() {
                         <button
                           className="icon-btn edit"
                           aria-label={`Edit ${student.studentName}`}
-                          title="Edit (coming soon)"
-                          disabled
+                          title="Edit student"
+                          onClick={() => openEditModal(student)}
                         >
                           <FiEdit2 />
                         </button>
@@ -278,8 +312,8 @@ export default function StudentDetails() {
         )}
       </section>
 
-      {/* ── Add Student Modal ── */}
-      {modalMode === 'add' && (
+      {/* ── Add/Edit Student Modal ── */}
+      {(modalMode === 'add' || modalMode === 'edit') && (
         <div className="modal-overlay">
           <form
             className="modal-box student-modal"
@@ -288,7 +322,7 @@ export default function StudentDetails() {
             id="add-student-form"
           >
             <div className="modal-header">
-              <h2>Add New Student</h2>
+              <h2>{modalMode === 'edit' ? 'Edit Student' : 'Add New Student'}</h2>
               <button
                 type="button"
                 className="close-btn"
@@ -418,6 +452,22 @@ export default function StudentDetails() {
                 </select>
               </div>
 
+              {/* Join Date */}
+              <div className="form-group">
+                <label htmlFor="s-createdDate">
+                  Join Date <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <input
+                  id="s-createdDate"
+                  type="date"
+                  name="createdDate"
+                  value={formData.createdDate}
+                  onChange={handleChange}
+                  disabled={saving}
+                  required
+                />
+              </div>
+
               {/* Qualification */}
               <div className="form-group">
                 <label htmlFor="s-studentQualification">
@@ -457,7 +507,7 @@ export default function StudentDetails() {
                 Cancel
               </button>
               <button type="submit" className="save-btn" disabled={saving}>
-                {saving ? 'Saving…' : 'Add Student'}
+                {saving ? 'Saving…' : modalMode === 'edit' ? 'Update Student' : 'Add Student'}
               </button>
             </div>
           </form>
@@ -508,6 +558,14 @@ export default function StudentDetails() {
                   value={`${viewStudent.courseDuration} ${viewStudent.courseDuration === 1 ? 'month' : 'months'}`}
                   disabled
                 />
+              </div>
+              <div className="form-group">
+                <label>Assigned Trainer</label>
+                <input type="text" value={viewStudent.trainerName || '—'} disabled />
+              </div>
+              <div className="form-group">
+                <label>Join Date</label>
+                <input type="text" value={viewStudent.createdDate || '—'} disabled />
               </div>
               <div className="form-group full-width">
                 <label>Qualification</label>

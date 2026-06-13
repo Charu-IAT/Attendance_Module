@@ -9,6 +9,9 @@ import com.example.attendance_module.Dto.Response.CourseResponseDto;
 import com.example.attendance_module.Model.Course;
 import com.example.attendance_module.Repo.CourseRepo;
 import com.example.attendance_module.Repo.RoleRepo;
+import com.example.attendance_module.Repo.StudentRepo;
+import com.example.attendance_module.Repo.UserRepo;
+import com.example.attendance_module.Repo.AttendanceRepo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +22,12 @@ public class CourseService {
     CourseRepo courseRepo;
     @Autowired
     RoleRepo roleRepo;
+    @Autowired
+    StudentRepo studentRepo;
+    @Autowired
+    UserRepo userRepo;
+    @Autowired
+    AttendanceRepo attendanceRepo;
 
     public CourseResponseDto createCourse(CourseRequestDto request){
       
@@ -39,9 +48,6 @@ public class CourseService {
 
     public List<CourseResponseDto> viewCourses(){
         List<Course> course=courseRepo.findAll();
-        if(course.isEmpty()){
-            throw new RuntimeException("Courses Not found");
-        }
         return course.stream().map(courses->CourseResponseDto.builder()
                                                              .courseId(courses.getCourseId())
                                                              .courseName(courses.getCourseName())
@@ -72,6 +78,17 @@ public class CourseService {
 
     }
 
+    @jakarta.transaction.Transactional
+    public String deleteCourse(Long courseId) {
+        Course course = courseRepo.findByCourseId(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
 
+        studentRepo.disassociateCourse(courseId);
+        userRepo.disassociateCourse(courseId);
+        attendanceRepo.deleteByCourseId(courseId);
 
+        courseRepo.delete(course);
+
+        return "Course Deleted Successfully";
+    }
 }

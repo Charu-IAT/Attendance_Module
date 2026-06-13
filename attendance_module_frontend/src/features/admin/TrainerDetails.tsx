@@ -25,7 +25,6 @@ type ModalMode = 'add' | 'edit' | null;
 interface TrainerFormData {
   userName: string;
   email: string;
-  userDes: string;
   courseId: number | '';
   password: string;
 }
@@ -33,7 +32,6 @@ interface TrainerFormData {
 const emptyForm: TrainerFormData = {
   userName: '',
   email: '',
-  userDes: '',
   courseId: '',
   password: '',
 };
@@ -90,7 +88,6 @@ export default function TrainerDetails() {
     setFormData({
       userName: trainer.userName,
       email: trainer.email,
-      userDes: trainer.userDes,
       courseId: matchedCourse?.courseId ?? '',
       password: '',
     });
@@ -115,7 +112,6 @@ export default function TrainerDetails() {
   const buildPayload = (): UpdateUserPayload => ({
     userName: formData.userName.trim(),
     email: formData.email.trim(),
-    userDes: formData.userDes.trim(),
     roleId: TRAINER_ROLE_ID,
     courseId: formData.courseId !== '' ? Number(formData.courseId) : null,
   });
@@ -123,7 +119,6 @@ export default function TrainerDetails() {
   const buildRegisterPayload = () => ({
     userName: formData.userName.trim(),
     email: formData.email.trim(),
-    userDes: formData.userDes.trim(),
     userPassword: formData.password,
     roleId: TRAINER_ROLE_ID,
     courseId: formData.courseId !== '' ? Number(formData.courseId) : null,
@@ -132,11 +127,6 @@ export default function TrainerDetails() {
   // ─── Save (Add / Edit) ──────────────────────────────────────────────────────
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!formData.userName.trim() || !formData.email.trim() || !formData.userDes.trim()) {
-      alert('Please fill in all required fields.');
-      return;
-    }
 
     if (modalMode === 'add' && !formData.password.trim()) {
       alert('Please enter a password for the new trainer.');
@@ -231,10 +221,9 @@ export default function TrainerDetails() {
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th>S.No</th>
                   <th>Trainer Name</th>
                   <th>Email ID</th>
-                  <th>Designation</th>
                   <th>Course</th>
                   <th>Actions</th>
                 </tr>
@@ -252,9 +241,6 @@ export default function TrainerDetails() {
                       <td>{index + 1}</td>
                       <td>{trainer.userName}</td>
                       <td>{trainer.email}</td>
-                      <td>
-                        <span className="designation-pill">{trainer.userDes || '—'}</span>
-                      </td>
                       <td>
                         {trainer.courseName ? (
                           <span className="course-pill">{trainer.courseName}</span>
@@ -339,25 +325,6 @@ export default function TrainerDetails() {
                   placeholder="Enter email"
                   autoComplete="off"
                   value={formData.email}
-                  onChange={handleChange}
-                  required
-                  disabled={saving}
-                />
-              </div>
-
-              {/* Designation */}
-              <div className="form-group">
-                <label htmlFor="td-userDes">
-                  <FiBookOpen style={{ marginRight: '0.4rem' }} />
-                  Designation <span style={{ color: '#ef4444' }}>*</span>
-                </label>
-                <input
-                  id="td-userDes"
-                  type="text"
-                  name="userDes"
-                  placeholder="Enter designation"
-                  autoComplete="off"
-                  value={formData.userDes}
                   onChange={handleChange}
                   required
                   disabled={saving}

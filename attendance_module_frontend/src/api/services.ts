@@ -153,6 +153,16 @@ export const deleteStudent = (
 ): Promise<AxiosResponse<string>> =>
   axiosInstance.delete(`/student/delete/${studentId}`);
 
+/**
+ * Update a student's details.
+ * PUT /student/update/:studentId
+ */
+export const updateStudent = (
+  studentId: number,
+  data: StudentPayload,
+): Promise<AxiosResponse<StudentDTO>> =>
+  axiosInstance.put(`/student/update/${studentId}`, data);
+
 // ─── Course ──────────────────────────────────────────────────────────────────
 
 /**
@@ -180,6 +190,15 @@ export const updateCourse = (
   data: CoursePayload,
 ): Promise<AxiosResponse<CourseDTO>> =>
   axiosInstance.put(`/course/getcourse/${courseId}`, data);
+
+/**
+ * Delete a course by its ID.
+ * DELETE /course/delete/:courseId
+ */
+export const deleteCourse = (
+  courseId: number,
+): Promise<AxiosResponse<string>> =>
+  axiosInstance.delete(`/course/delete/${courseId}`);
 
 // ─── Attendance ───────────────────────────────────────────────────────────────
 

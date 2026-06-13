@@ -202,6 +202,7 @@ export default function StudentDetails() {
                   ['Date of Birth',  activeStudent.studentDob],
                   ['Course',         activeStudent.courseName],
                   ['Duration',       `${activeStudent.courseDuration} ${activeStudent.courseDuration === 1 ? 'month' : 'months'}`],
+                  ['Join Date',      activeStudent.createdDate],
                   ['Qualification',  activeStudent.studentQualification],
                   ['Address',        activeStudent.address],
                 ] as [string, string][]

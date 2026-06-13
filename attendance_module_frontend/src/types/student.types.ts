@@ -15,6 +15,9 @@ export interface StudentDTO {
   courseDuration: number;
   studentQualification: string;
   address: string;
+  createdDate: string;
+  userId?: number;
+  trainerName?: string;
 }
 
 /**
@@ -50,6 +53,7 @@ export interface StudentPayload {
   address: string;
   courseId: number;
   trainerId: number;
+  createdDate?: string;
 }
 
 /** A single row in the attendance table. */

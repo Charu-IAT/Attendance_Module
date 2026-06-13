@@ -45,6 +45,12 @@ public class AttendanceService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    private void validateAttendanceDate(Student student, LocalDate date) {
+        if (date != null && student.getCreatedDate() != null && date.isBefore(student.getCreatedDate())) {
+            throw new RuntimeException("Cannot mark attendance before the student's join date (" + student.getCreatedDate() + ")");
+        }
+    }
+
     public AttendanceResponse createAttendance(AttendanceRequest request) {
 
         User trainer = getLoggedUser();
@@ -59,6 +65,8 @@ public class AttendanceService {
         LocalDate date = request.getAttendanceDate() != null
                 ? request.getAttendanceDate()
                 : LocalDate.now();
+
+        validateAttendanceDate(student, date);
 
         if (attendanceRepo.existsByStudentIdAndAttendanceDate(student.getStudentId(), date)) {
             throw new RuntimeException("Already marked");
@@ -144,7 +152,7 @@ public class AttendanceService {
     public DashboardResponse getAdminDashboard(LocalDate date) {
         LocalDate targetDate = date != null ? date : LocalDate.now();
 
-        long totalStudents = studentRepo.count();
+        long totalStudents = studentRepo.countStudentsAsOfDate(targetDate);
         long totalPresent = attendanceRepo.countByAttendanceDateAndAttendanceStatus(targetDate, AttendanceStatus.Present);
         long totalAbsent = attendanceRepo.countByAttendanceDateAndAttendanceStatus(targetDate, AttendanceStatus.Absent);
         long totalOngoing = Math.max(0, totalStudents );
@@ -162,7 +170,7 @@ public class AttendanceService {
         verifyTrainerRole(trainer);
         LocalDate targetDate = date != null ? date : LocalDate.now();
 
-        long totalStudents = studentRepo.countByCourseId(trainer.getCourseId());
+        long totalStudents = studentRepo.countStudentsByCourseAsOfDate(trainer.getCourseId(), targetDate);
         long totalPresent = attendanceRepo.countByTrainerUserIdAndAttendanceDateAndAttendanceStatus(trainer.getUserId(), targetDate, AttendanceStatus.Present);
         long totalAbsent = attendanceRepo.countByTrainerUserIdAndAttendanceDateAndAttendanceStatus(trainer.getUserId(), targetDate, AttendanceStatus.Absent);
         long totalOngoing = Math.max(0, totalStudents - totalPresent - totalAbsent);
@@ -206,6 +214,8 @@ public class AttendanceService {
             if (!student.getCourseId().equals(trainer.getCourseId())) {
                 throw new RuntimeException("Not your course student");
             }
+
+            validateAttendanceDate(student, date);
 
             if (attendanceRepo.existsByStudentIdAndAttendanceDate(student.getStudentId(), date)) {
                 throw new RuntimeException("Attendance already marked for student id: " + student.getStudentId());
@@ -266,6 +276,8 @@ public class AttendanceService {
                 ? request.getAttendanceDate()
                 : LocalDate.now();
 
+        validateAttendanceDate(student, date);
+
         if (attendanceRepo.existsByStudentIdAndAttendanceDate(student.getStudentId(), date)) {
             throw new RuntimeException("Already marked");
         }
@@ -295,6 +307,10 @@ public class AttendanceService {
 
     public Attendance updateAttendanceByStudentId(Long studentId, LocalDate date, AttendanceStatus status) {
 
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        validateAttendanceDate(student, date);
+
         Attendance att = attendanceRepo.findByStudentIdAndAttendanceDate(studentId, date)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found for student id: " + studentId + " on date: " + date));
 
@@ -304,6 +320,10 @@ public class AttendanceService {
     }
 
     public Attendance updateAttendanceByStudentName(String studentName, LocalDate date, AttendanceStatus status) {
+
+        Student student = studentRepo.findByStudentName(studentName)
+                .orElseThrow(() -> new RuntimeException("Student not found with name: " + studentName));
+        validateAttendanceDate(student, date);
 
         Attendance att = attendanceRepo.findByStudentNameAndAttendanceDate(studentName, date)
                 .orElseThrow(() -> new RuntimeException("Attendance record not found for student: " + studentName + " on date: " + date));

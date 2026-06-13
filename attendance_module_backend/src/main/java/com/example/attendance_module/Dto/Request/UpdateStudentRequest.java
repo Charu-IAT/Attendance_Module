@@ -31,6 +31,10 @@ public class UpdateStudentRequest {
     private String studentQualification;
 
     private String address;
-    
 
+    private Long courseId;
+
+    private Long trainerId;
+
+    private LocalDate createdDate;
 }

@@ -38,9 +38,6 @@ public class RoleService {
 
     public List<RoleResponseDto> viewAllRole(){
         List<Role> roles=roleRepo.findAll();
-        if(roles.isEmpty()){
-            throw new RuntimeException("No role is created");
-        }
         return roles.stream()
               .map(role->RoleResponseDto.builder()
                                         .roleName(role.getRoleName())
