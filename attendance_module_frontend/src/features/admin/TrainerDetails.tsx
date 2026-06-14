@@ -16,6 +16,9 @@ import type { UserDTO, UpdateUserPayload } from '../../types/user.types';
 import type { CourseDTO } from '../../types/course.types';
 import { viewUsersByRole, updateUser, deleteUser, registerUser } from '../../api/services';
 import { getAllCourses } from '../../api/services';
+import { useToast } from '../../hooks/useToast';
+import Pagination from '../../components/Pagination';
+import type { AxiosError } from 'axios';
 
 // roleId=2 maps to "trainer" on the backend
 const TRAINER_ROLE_ID = 2;
@@ -45,6 +48,20 @@ export default function TrainerDetails() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
 
+  const toast = useToast();
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const totalPages = Math.ceil(trainers.length / itemsPerPage);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   // ─── Modal State ────────────────────────────────────────────────────────────
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [selectedTrainer, setSelectedTrainer] = useState<UserDTO | null>(null);
@@ -55,6 +72,7 @@ export default function TrainerDetails() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setCurrentPage(1);
     try {
       const [trainersRes, coursesRes] = await Promise.all([
         viewUsersByRole(TRAINER_ROLE_ID),
@@ -129,7 +147,7 @@ export default function TrainerDetails() {
     e.preventDefault();
 
     if (modalMode === 'add' && !formData.password.trim()) {
-      alert('Please enter a password for the new trainer.');
+      toast.error('Please enter a password for the new trainer.');
       return;
     }
 
@@ -142,16 +160,36 @@ export default function TrainerDetails() {
         setTrainers((prev) =>
           prev.map((t) => (t.userId === selectedTrainer.userId ? res.data : t)),
         );
+        toast.success('Trainer updated successfully!');
       } else {
         // POST /api/auth/register
         const registerPayload = buildRegisterPayload();
         const res = await registerUser(registerPayload);
         setTrainers((prev) => [...prev, res.data]);
+        toast.success('Trainer registered successfully!');
       }
       closeModal();
     } catch (err) {
       console.error('Failed to save trainer:', err);
-      alert('Failed to save trainer. Please try again.');
+      const axiosErr = err as AxiosError<any>;
+      const data = axiosErr.response?.data;
+      let serverMsg = axiosErr.message || 'Failed to save trainer. Please try again.';
+      
+      if (data && typeof data === 'object') {
+        if (typeof data.message === 'string') {
+          serverMsg = data.message;
+        } else if (typeof data.error === 'string') {
+          serverMsg = data.error;
+        } else if (Array.isArray(data.errors) && data.errors.length > 0 && data.errors[0]?.defaultMessage) {
+          serverMsg = data.errors[0].defaultMessage;
+        } else {
+          const values = Object.values(data);
+          if (values.length > 0 && typeof values[0] === 'string') {
+            serverMsg = values[0];
+          }
+        }
+      }
+      toast.error(serverMsg);
     } finally {
       setSaving(false);
     }
@@ -164,13 +202,19 @@ export default function TrainerDetails() {
     try {
       await deleteUser(trainer.userId);
       setTrainers((prev) => prev.filter((t) => t.userId !== trainer.userId));
+      toast.success(`Trainer "${trainer.userName}" deleted successfully!`);
     } catch (err) {
       console.error('Failed to delete trainer:', err);
-      alert('Failed to delete trainer. Please try again.');
+      toast.error('Failed to delete trainer. Please try again.');
     } finally {
       setDeleting(null);
     }
   };
+
+  // Pagination calculations
+  const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const paginatedTrainers = trainers.slice(startIndex, startIndex + itemsPerPage);
 
   // ─── Render ─────────────────────────────────────────────────────────────────
   const modalTitle = modalMode === 'edit' ? 'Edit Trainer' : 'Add New Trainer';
@@ -217,62 +261,75 @@ export default function TrainerDetails() {
         )}
 
         {!loading && !error && (
-          <div className="table-scroll-wrapper">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>S.No</th>
-                  <th>Trainer Name</th>
-                  <th>Email ID</th>
-                  <th>Course</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {trainers.length === 0 ? (
+          <>
+            <div className="table-scroll-wrapper">
+              <table className="custom-table">
+                <thead>
                   <tr>
-                    <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
-                      No trainers found.
-                    </td>
+                    <th>S.No</th>
+                    <th>Trainer Name</th>
+                    <th>Email ID</th>
+                    <th>Course</th>
+                    <th>Actions</th>
                   </tr>
-                ) : (
-                  trainers.map((trainer, index) => (
-                    <tr key={trainer.userId}>
-                      <td>{index + 1}</td>
-                      <td>{trainer.userName}</td>
-                      <td>{trainer.email}</td>
-                      <td>
-                        {trainer.courseName ? (
-                          <span className="course-pill">{trainer.courseName}</span>
-                        ) : (
-                          <span style={{ opacity: 0.5 }}>—</span>
-                        )}
-                      </td>
-                      <td>
-                        <button
-                          className="icon-btn edit"
-                          aria-label={`Edit ${trainer.userName}`}
-                          title="Edit trainer"
-                          onClick={() => openEditModal(trainer)}
-                        >
-                          <FiEdit />
-                        </button>
-                        <button
-                          className="icon-btn delete"
-                          aria-label={`Delete ${trainer.userName}`}
-                          title="Delete trainer"
-                          disabled={deleting === trainer.userId}
-                          onClick={() => handleDelete(trainer)}
-                        >
-                          <FiTrash2 />
-                        </button>
+                </thead>
+                <tbody>
+                  {paginatedTrainers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
+                        No trainers found.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    paginatedTrainers.map((trainer, index) => (
+                      <tr key={trainer.userId}>
+                        <td>{startIndex + index + 1}</td>
+                        <td>{trainer.userName}</td>
+                        <td>{trainer.email}</td>
+                        <td>
+                          {trainer.courseName ? (
+                            <span className="course-pill">{trainer.courseName}</span>
+                          ) : (
+                            <span style={{ opacity: 0.5 }}>—</span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            className="icon-btn edit"
+                            aria-label={`Edit ${trainer.userName}`}
+                            title="Edit trainer"
+                            onClick={() => openEditModal(trainer)}
+                          >
+                            <FiEdit />
+                          </button>
+                          <button
+                            className="icon-btn delete"
+                            aria-label={`Delete ${trainer.userName}`}
+                            title="Delete trainer"
+                            disabled={deleting === trainer.userId}
+                            onClick={() => handleDelete(trainer)}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={activePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={trainers.length}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={(size) => {
+                setItemsPerPage(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
       </section>
 

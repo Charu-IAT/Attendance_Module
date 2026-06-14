@@ -33,11 +33,6 @@ export default function Header({
       </div>
 
       <div className="header-actions">
-        <button className="notification-button" aria-label="Notifications">
-          <FiBell />
-          <span />
-        </button>
-
         <div className="profile">
           <div className="profile-avatar">
             <FiUser />

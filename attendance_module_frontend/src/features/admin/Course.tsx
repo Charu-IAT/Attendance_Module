@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { FiEdit, FiEye, FiPlus, FiX, FiBook, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
 import type { CourseDTO } from '../../types/course.types';
 import { getAllCourses, addCourse, updateCourse, deleteCourse } from '../../api/services';
+import { useToast } from '../../hooks/useToast';
+import Pagination from '../../components/Pagination';
+import type { AxiosError } from 'axios';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +42,20 @@ export default function Course() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [formData, setFormData] = useState<CourseFormData>(emptyCourse);
 
+  const toast = useToast();
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const totalPages = Math.ceil(courses.length / itemsPerPage);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   const isViewMode = modalMode === 'view';
   const isEditMode = modalMode === 'edit';
 
@@ -47,6 +64,7 @@ export default function Course() {
   const fetchCourses = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setCurrentPage(1);
     try {
       const res = await getAllCourses();
       setCourses(res.data);
@@ -99,11 +117,11 @@ export default function Course() {
     const duration = Number(formData.courseDuration);
 
     if (!trimmedName) {
-      alert('Please enter a course name.');
+      toast.error('Please enter a course name.');
       return;
     }
     if (!formData.courseDuration || isNaN(duration) || duration <= 0) {
-      alert('Please enter a valid duration (months).');
+      toast.error('Please enter a valid duration (months).');
       return;
     }
 
@@ -117,18 +135,35 @@ export default function Course() {
         setCourses((prev) =>
           prev.map((c) => (c.courseId === selectedId ? res.data : c)),
         );
+        toast.success('Course updated successfully!');
       } else {
         const res = await addCourse(payload);
         setCourses((prev) => [...prev, res.data]);
+        toast.success('Course added successfully!');
       }
       resetModal();
     } catch (err: unknown) {
       console.error('Failed to save course:', err);
-      setError(
-        isEditMode
-          ? 'Failed to update course. Please try again.'
-          : 'Failed to add course. Please try again.',
-      );
+      const axiosErr = err as AxiosError<any>;
+      const data = axiosErr.response?.data;
+      let serverMsg = axiosErr.message || (isEditMode ? 'Failed to update course. Please try again.' : 'Failed to add course. Please try again.');
+      
+      if (data && typeof data === 'object') {
+        if (typeof data.message === 'string') {
+          serverMsg = data.message;
+        } else if (typeof data.error === 'string') {
+          serverMsg = data.error;
+        } else if (Array.isArray(data.errors) && data.errors.length > 0 && data.errors[0]?.defaultMessage) {
+          serverMsg = data.errors[0].defaultMessage;
+        } else {
+          const values = Object.values(data);
+          if (values.length > 0 && typeof values[0] === 'string') {
+            serverMsg = values[0];
+          }
+        }
+      }
+      toast.error(serverMsg);
+      setError(serverMsg);
     } finally {
       setSaving(false);
     }
@@ -146,9 +181,10 @@ export default function Course() {
     try {
       await deleteCourse(course.courseId);
       setCourses((prev) => prev.filter((c) => c.courseId !== course.courseId));
+      toast.success(`Course "${course.courseName}" deleted successfully!`);
     } catch (err: unknown) {
       console.error('Failed to delete course:', err);
-      alert('Failed to delete course. Please try again.');
+      toast.error('Failed to delete course. Please try again.');
     } finally {
       setDeleting(null);
     }
@@ -159,6 +195,11 @@ export default function Course() {
     if (isEditMode) return 'Edit Course';
     return 'Add New Course';
   };
+
+  // Pagination calculations
+  const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const paginatedCourses = courses.slice(startIndex, startIndex + itemsPerPage);
 
   // ── render ───────────────────────────────────────────────────────────────
 
@@ -229,9 +270,9 @@ export default function Course() {
                 </tr>
               </thead>
               <tbody>
-                {courses.map((course, idx) => (
+                {paginatedCourses.map((course, idx) => (
                   <tr key={course.courseId}>
-                    <td>{idx + 1}</td>
+                    <td>{startIndex + idx + 1}</td>
                     <td>
                       <div className="course-name-cell">
                         <span className="course-icon-badge">
@@ -277,6 +318,17 @@ export default function Course() {
               </tbody>
             </table>
           </div>
+          <Pagination
+            currentPage={activePage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={courses.length}
+            itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(size) => {
+              setItemsPerPage(size);
+              setCurrentPage(1);
+            }}
+          />
         </section>
       )}
 

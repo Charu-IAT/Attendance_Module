@@ -11,6 +11,9 @@ import {
   viewUsersByRole,
 } from '../../api/services';
 import type { UserDTO } from '../../types/user.types';
+import { useToast } from '../../hooks/useToast';
+import Pagination from '../../components/Pagination';
+import type { AxiosError } from 'axios';
 
 // ─── Form shape (matches StudentPayload + view helpers) ───────────────────────
 
@@ -54,6 +57,20 @@ export default function StudentDetails() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
 
+  const toast = useToast();
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const totalPages = Math.ceil(students.length / itemsPerPage);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   // ── modal state ──────────────────────────────────────────────────────────────
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
@@ -64,6 +81,7 @@ export default function StudentDetails() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setCurrentPage(1);
     try {
       const [studentsRes, coursesRes, trainersRes] = await Promise.all([
         getAllStudents(),
@@ -145,7 +163,7 @@ export default function StudentDetails() {
       formData.trainerId === '' ||
       !formData.createdDate
     ) {
-      alert('Please fill in all required fields.');
+      toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -168,14 +186,34 @@ export default function StudentDetails() {
         setStudents((prev) =>
           prev.map((s) => (s.studentId === selectedStudentId ? res.data : s)),
         );
+        toast.success('Student updated successfully!');
       } else {
         const res = await addStudent(payload);
         setStudents((prev) => [...prev, res.data]);
+        toast.success('Student added successfully!');
       }
       closeModal();
     } catch (err) {
       console.error(`Failed to ${modalMode === 'edit' ? 'update' : 'add'} student:`, err);
-      alert(`Failed to ${modalMode === 'edit' ? 'update' : 'add'} student. Please try again.`);
+      const axiosErr = err as AxiosError<any>;
+      const data = axiosErr.response?.data;
+      let serverMsg = axiosErr.message || `Failed to ${modalMode === 'edit' ? 'update' : 'add'} student. Please try again.`;
+      
+      if (data && typeof data === 'object') {
+        if (typeof data.message === 'string') {
+          serverMsg = data.message;
+        } else if (typeof data.error === 'string') {
+          serverMsg = data.error;
+        } else if (Array.isArray(data.errors) && data.errors.length > 0 && data.errors[0]?.defaultMessage) {
+          serverMsg = data.errors[0].defaultMessage;
+        } else {
+          const values = Object.values(data);
+          if (values.length > 0 && typeof values[0] === 'string') {
+            serverMsg = values[0];
+          }
+        }
+      }
+      toast.error(serverMsg);
     } finally {
       setSaving(false);
     }
@@ -189,13 +227,19 @@ export default function StudentDetails() {
     try {
       await deleteStudent(student.studentId);
       setStudents((prev) => prev.filter((s) => s.studentId !== student.studentId));
+      toast.success(`Student "${student.studentName}" deleted successfully!`);
     } catch (err) {
       console.error('Failed to delete student:', err);
-      alert('Failed to delete student. Please try again.');
+      toast.error('Failed to delete student. Please try again.');
     } finally {
       setDeleting(null);
     }
   };
+
+  // Pagination calculations
+  const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const paginatedStudents = students.slice(startIndex, startIndex + itemsPerPage);
 
   // ── render ───────────────────────────────────────────────────────────────────
   return (
@@ -240,75 +284,88 @@ export default function StudentDetails() {
         )}
 
         {!loading && !error && (
-          <div className="table-scroll-wrapper">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Gender</th>
-                  <th>DOB</th>
-                  <th>Course</th>
-                  <th>Duration</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.length === 0 ? (
+          <>
+            <div className="table-scroll-wrapper">
+              <table className="custom-table">
+                <thead>
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
-                      No students found.
-                    </td>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>DOB</th>
+                    <th>Course</th>
+                    <th>Duration</th>
+                    <th>Actions</th>
                   </tr>
-                ) : (
-                  students.map((student, index) => (
-                    <tr key={student.studentId}>
-                      <td>{index + 1}</td>
-                      <td>{student.studentName}</td>
-                      <td>{student.email}</td>
-                      <td>{student.studentGender}</td>
-                      <td>{student.studentDob}</td>
-                      <td>
-                        <span className="course-pill">{student.courseName}</span>
-                      </td>
-                      <td>
-                        {student.courseDuration}{' '}
-                        {student.courseDuration === 1 ? 'month' : 'months'}
-                      </td>
-                      <td>
-                        <button
-                          className="icon-btn view"
-                          aria-label={`View ${student.studentName}`}
-                          title="View details"
-                          onClick={() => openViewModal(student)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="icon-btn edit"
-                          aria-label={`Edit ${student.studentName}`}
-                          title="Edit student"
-                          onClick={() => openEditModal(student)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="icon-btn delete"
-                          aria-label={`Delete ${student.studentName}`}
-                          title="Delete student"
-                          disabled={deleting === student.studentId}
-                          onClick={() => handleDelete(student)}
-                        >
-                          <FiTrash2 />
-                        </button>
+                </thead>
+                <tbody>
+                  {paginatedStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
+                        No students found.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    paginatedStudents.map((student, index) => (
+                      <tr key={student.studentId}>
+                        <td>{startIndex + index + 1}</td>
+                        <td>{student.studentName}</td>
+                        <td>{student.email}</td>
+                        <td>{student.studentGender}</td>
+                        <td>{student.studentDob}</td>
+                        <td>
+                          <span className="course-pill">{student.courseName}</span>
+                        </td>
+                        <td>
+                          {student.courseDuration}{' '}
+                          {student.courseDuration === 1 ? 'month' : 'months'}
+                        </td>
+                        <td>
+                          <button
+                            className="icon-btn view"
+                            aria-label={`View ${student.studentName}`}
+                            title="View details"
+                            onClick={() => openViewModal(student)}
+                          >
+                            <FiEye />
+                          </button>
+                          <button
+                            className="icon-btn edit"
+                            aria-label={`Edit ${student.studentName}`}
+                            title="Edit student"
+                            onClick={() => openEditModal(student)}
+                          >
+                            <FiEdit2 />
+                          </button>
+                          <button
+                            className="icon-btn delete"
+                            aria-label={`Delete ${student.studentName}`}
+                            title="Delete student"
+                            disabled={deleting === student.studentId}
+                            onClick={() => handleDelete(student)}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={activePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={students.length}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={(size) => {
+                setItemsPerPage(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
       </section>
 

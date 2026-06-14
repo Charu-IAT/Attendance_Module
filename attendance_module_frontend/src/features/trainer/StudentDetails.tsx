@@ -3,6 +3,7 @@ import { FiEye, FiX, FiRefreshCw } from 'react-icons/fi';
 import type { StudentDTO } from '../../types/student.types';
 import { getStudentsByTrainer, getStudentsByCourse, viewAllUsers } from '../../api/services';
 import type { AxiosError } from 'axios';
+import Pagination from '../../components/Pagination';
 import { getUserId, getUserName, setUserId } from '../../hooks/useAuth';
 
 type ModalMode = 'view' | null;
@@ -17,12 +18,17 @@ export default function StudentDetails() {
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [activeStudent, setActiveStudent] = useState<StudentDTO | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   // ── resolve userId then fetch trainer's students ─────────────────────────────
   // The backend login response may not include userId, so we resolve it on-demand
   // by matching the logged-in userName against GET /user/viewUser.
   const fetchStudents = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setCurrentPage(1);
     try {
       let resolvedId = getUserId();
       let trainerCourseName: string | null = null;
@@ -85,6 +91,11 @@ export default function StudentDetails() {
     setActiveStudent(null);
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(students.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedStudents = students.slice(startIndex, startIndex + itemsPerPage);
+
   // ── render ──────────────────────────────────────────────────────────────────
   return (
     <main className="trainer-page student-details-page">
@@ -125,61 +136,74 @@ export default function StudentDetails() {
             <button className="add-btn" onClick={fetchStudents}>Retry</button>
           </div>
         ) : (
-          <div className="table-scroll-wrapper">
-            <table className="custom-table trainer-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Gender</th>
-                  <th>DOB</th>
-                  <th>Course</th>
-                  <th>Qualification</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.length === 0 ? (
+          <>
+            <div className="table-scroll-wrapper">
+              <table className="custom-table trainer-table">
+                <thead>
                   <tr>
-                    <td colSpan={8} className="empty-table-cell">
-                      <div className="empty-state-block">
-                        <span className="empty-state-icon">👥</span>
-                        <p>No students assigned to you yet.</p>
-                        <span>Contact your admin to assign students.</span>
-                      </div>
-                    </td>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>DOB</th>
+                    <th>Course</th>
+                    <th>Qualification</th>
+                    <th>Actions</th>
                   </tr>
-                ) : (
-                  students.map((student, index) => (
-                    <tr key={student.studentId}>
-                      <td className="row-num">{index + 1}</td>
-                      <td>{student.studentName}</td>
-                      <td className="text-muted">{student.email}</td>
-                      <td>{student.studentGender}</td>
-                      <td className="text-muted">{student.studentDob}</td>
-                      <td>
-                        <span className="course-pill">{student.courseName}</span>
-                      </td>
-                      <td>{student.studentQualification}</td>
-                      <td>
-                        <div className="action-cell">
-                          <button
-                            className="icon-btn view"
-                            aria-label={`View ${student.studentName}`}
-                            title="View details"
-                            onClick={() => openView(student)}
-                          >
-                            <FiEye />
-                          </button>
+                </thead>
+                <tbody>
+                  {paginatedStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="empty-table-cell">
+                        <div className="empty-state-block">
+                          <span className="empty-state-icon">👥</span>
+                          <p>No students assigned to you yet.</p>
+                          <span>Contact your admin to assign students.</span>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                  ) : (
+                    paginatedStudents.map((student, index) => (
+                      <tr key={student.studentId}>
+                        <td className="row-num">{startIndex + index + 1}</td>
+                        <td>{student.studentName}</td>
+                        <td className="text-muted">{student.email}</td>
+                        <td>{student.studentGender}</td>
+                        <td className="text-muted">{student.studentDob}</td>
+                        <td>
+                          <span className="course-pill">{student.courseName}</span>
+                        </td>
+                        <td>{student.studentQualification}</td>
+                        <td>
+                          <div className="action-cell">
+                            <button
+                              className="icon-btn view"
+                              aria-label={`View ${student.studentName}`}
+                              title="View details"
+                              onClick={() => openView(student)}
+                            >
+                              <FiEye />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={students.length}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={(size) => {
+                setItemsPerPage(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
       </section>
 

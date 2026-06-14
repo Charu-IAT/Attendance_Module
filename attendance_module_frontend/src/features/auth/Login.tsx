@@ -4,6 +4,7 @@ import { FiCalendar, FiLock, FiMail } from 'react-icons/fi';
 import { loginUser, viewAllUsers } from '../../api/services';
 import { setAuth, setUserId } from '../../hooks/useAuth';
 import type { AxiosError } from 'axios';
+import { useToast } from '../../hooks/useToast';
 import './Login.css';
 
 interface ApiErrorResponse {
@@ -17,6 +18,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const toast = useToast();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,6 +48,7 @@ export default function Login() {
         }
       }
 
+      toast.success(`Welcome back, ${userName}!`);
       if (roleName === 'admin') {
         navigate('/admin/dashboard');
       } else {

@@ -7,7 +7,6 @@ import AdminDashboard from '../features/admin/Dashboard';
 import TrainerDetails from '../features/admin/TrainerDetails';
 import AdminStudentDetails from '../features/admin/StudentDetails';
 import AdminCourses from '../features/admin/Course';
-import Reports from '../features/admin/Reports';
 
 import TrainerLayout from '../layouts/TrainerLayout';
 import TrainerDashboard from '../features/trainer/Dashboard';
@@ -28,7 +27,6 @@ export default function AppRoutes() {
           <Route path="trainer-details" element={<TrainerDetails />} />
           <Route path="student-details" element={<AdminStudentDetails />} />
           <Route path="courses"         element={<AdminCourses />} />
-          <Route path="reports"         element={<Reports />} />
         </Route>
 
         {/* Trainer */}

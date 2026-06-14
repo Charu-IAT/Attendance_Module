@@ -4,7 +4,6 @@ import {
   FiGrid,
   FiUsers,
   FiBookOpen,
-  FiFileText,
   FiLogOut,
   FiAward,
   FiLayers,
@@ -22,13 +21,14 @@ const adminMenuItems: MenuItem[] = [
   { label: 'Trainer Details', path: '/admin/trainer-details', icon: <FiUsers /> },
   { label: 'Student Details', path: '/admin/student-details', icon: <FiBookOpen /> },
   { label: 'Courses',         path: '/admin/courses',         icon: <FiLayers /> },
-  { label: 'Reports',         path: '/admin/reports',         icon: <FiFileText /> },
+  
 ];
 
 const trainerMenuItems: MenuItem[] = [
   { label: 'Dashboard',             path: '/trainer/dashboard',             icon: <FiGrid /> },
   { label: 'Student Details',       path: '/trainer/student-details',       icon: <FiBookOpen /> },
   { label: 'Attendance Management', path: '/trainer/attendance-management', icon: <FiClipboard /> },
+ 
 ];
 
 interface SidebarProps {

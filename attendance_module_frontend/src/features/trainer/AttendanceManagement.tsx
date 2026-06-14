@@ -13,6 +13,8 @@ import {
 } from '../../api/services';
 import { getUserId, getUserName, setUserId } from '../../hooks/useAuth';
 import type { AxiosError } from 'axios';
+import { useToast } from '../../hooks/useToast';
+import Pagination from '../../components/Pagination';
 
 // ─── Per-row working state ────────────────────────────────────────────────────
 
@@ -43,7 +45,20 @@ export default function AttendanceManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bulkSaving, setBulkSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
+
+  const toast = useToast();
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const totalPages = Math.ceil(rows.length / itemsPerPage);
+
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   // ── Build rows from students + existing attendance for the date ────────────
   const buildRows = useCallback(
@@ -68,7 +83,7 @@ export default function AttendanceManagement() {
     async (selectedDate: string) => {
       setLoading(true);
       setError(null);
-      setSuccessMsg('');
+      setCurrentPage(1);
 
       try {
         let resolvedId = getUserId();
@@ -145,7 +160,6 @@ export default function AttendanceManagement() {
           : r,
       ),
     );
-    setSuccessMsg('');
   };
 
   // ── Save a single row ──────────────────────────────────────────────────────
@@ -199,22 +213,27 @@ export default function AttendanceManagement() {
 
   // ── Save ALL rows at once ──────────────────────────────────────────────────
   const handleSaveAll = async () => {
-    setBulkSaving(true);
-    setSuccessMsg('');
-
     const rowsToSave = rows.filter((r) => r.status !== 'No Record' && !r.saved);
-    await Promise.all(rowsToSave.map((row) => saveRow(row)));
+    if (rowsToSave.length === 0) {
+      toast.error('No changes to save.');
+      return;
+    }
 
-    setBulkSaving(false);
-    setSuccessMsg('Attendance saved successfully!');
-    setTimeout(() => setSuccessMsg(''), 4000);
+    setBulkSaving(true);
+    try {
+      await Promise.all(rowsToSave.map((row) => saveRow(row)));
+      toast.success('Attendance saved successfully!');
+    } catch (err) {
+      toast.error('Failed to save some attendance records. Please try again.');
+    } finally {
+      setBulkSaving(false);
+    }
   };
 
   // ── Reset to today ─────────────────────────────────────────────────────────
   const handleReset = () => {
     setDate(today);
     fetchData(today);
-    setSuccessMsg('');
   };
 
   // ── Derived stats ──────────────────────────────────────────────────────────
@@ -224,6 +243,11 @@ export default function AttendanceManagement() {
 
   // ── Course info ────────────────────────────────────────────────────────────
   const assignedCourses = [...new Set(rows.map((r) => r.student.courseName))].join(', ');
+
+  // Pagination calculations
+  const activePage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const paginatedRows = rows.slice(startIndex, startIndex + itemsPerPage);
 
   // ── render ─────────────────────────────────────────────────────────────────
   return (
@@ -291,80 +315,95 @@ export default function AttendanceManagement() {
             <button className="add-btn" onClick={() => fetchData(date)}>Retry</button>
           </div>
         ) : (
-          <table className="custom-table trainer-table attendance-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Student Name</th>
-                <th>Course</th>
-                <th>Attendance Date</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
-                    No students assigned to you.
-                  </td>
-                </tr>
-              ) : (
-                rows.map((row, index) => (
-                  <tr key={row.student.studentId}>
-                    <td>{index + 1}</td>
-                    <td>{row.student.studentName}</td>
-                    <td>
-                      <span className="course-pill">{row.student.courseName}</span>
-                    </td>
-                    <td>{date}</td>
-                    <td>
-                      <select
-                        className={`status-select ${row.status.toLowerCase().replace(/\s+/g, '')}`}
-                        value={row.status}
-                        disabled={row.saving}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            row.student.studentId,
-                            e.target.value as AttendanceStatus,
-                          )
-                        }
-                      >
-                        {row.attendanceId === null && (
-                          <option value="No Record" disabled hidden>No Record</option>
-                        )}
-                        <option value="Present">Present</option>
-                        <option value="Absent">Absent</option>
-                        <option value="Abscont">Abscont</option>
-                      </select>
-                    </td>
-                    <td>
-                      {row.saving ? (
-                        <FiRefreshCw className="spin" style={{ fontSize: '20px', color: '#64748b' }} />
-                      ) : row.error ? (
-                        <span style={{ color: '#c50000', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FiAlertCircle /> {row.error}
-                        </span>
-                      ) : row.saved ? (
-                        <span style={{ color: '#007a38', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FiCheckCircle /> Saved
-                        </span>
-                      ) : (
-                        <button
-                          className="icon-btn edit"
-                          title="Save this row"
-                          aria-label={`Save attendance for ${row.student.studentName}`}
-                          onClick={() => saveRow(row)}
-                        >
-                          <FiSave />
-                        </button>
-                      )}
-                    </td>
+          <>
+            <div className="table-scroll-wrapper">
+              <table className="custom-table trainer-table attendance-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Student Name</th>
+                    <th>Course</th>
+                    <th>Attendance Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {paginatedRows.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
+                        No students assigned to you.
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedRows.map((row, index) => (
+                      <tr key={row.student.studentId}>
+                        <td>{startIndex + index + 1}</td>
+                        <td>{row.student.studentName}</td>
+                        <td>
+                          <span className="course-pill">{row.student.courseName}</span>
+                        </td>
+                        <td>{date}</td>
+                        <td>
+                          <select
+                            className={`status-select ${row.status.toLowerCase().replace(/\s+/g, '')}`}
+                            value={row.status}
+                            disabled={row.saving}
+                            onChange={(e) =>
+                              handleStatusChange(
+                                row.student.studentId,
+                                e.target.value as AttendanceStatus,
+                              )
+                            }
+                          >
+                            {row.attendanceId === null && (
+                              <option value="No Record" disabled hidden>No Record</option>
+                            )}
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Abscont">Abscont</option>
+                          </select>
+                        </td>
+                        <td>
+                          {row.saving ? (
+                            <FiRefreshCw className="spin" style={{ fontSize: '20px', color: '#64748b' }} />
+                          ) : row.error ? (
+                            <span style={{ color: '#c50000', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <FiAlertCircle /> {row.error}
+                            </span>
+                          ) : row.saved ? (
+                            <span style={{ color: '#007a38', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <FiCheckCircle /> Saved
+                            </span>
+                          ) : (
+                            <button
+                              className="icon-btn edit"
+                              title="Save this row"
+                              aria-label={`Save attendance for ${row.student.studentName}`}
+                              onClick={() => saveRow(row)}
+                            >
+                              <FiSave />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              currentPage={activePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              totalItems={rows.length}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={(size) => {
+                setItemsPerPage(size);
+                setCurrentPage(1);
+              }}
+            />
+          </>
         )}
       </section>
 
@@ -383,12 +422,6 @@ export default function AttendanceManagement() {
           <FiRefreshCw />
           Reset to Today
         </button>
-
-        {successMsg && (
-          <span className="saved-message">
-            <FiCheckCircle /> {successMsg}
-          </span>
-        )}
       </div>
     </main>
   );

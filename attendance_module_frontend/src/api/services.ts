@@ -297,3 +297,51 @@ export const deleteAttendance = (
 ): Promise<AxiosResponse<string>> =>
   axiosInstance.delete(`/attendance/${attendanceId}`);
 
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+/**
+ * Download Monthly Daily Attendance Report as PDF or Excel.
+ * GET /api/reports/monthly-daily
+ */
+export const downloadMonthlyDailyReport = (
+  month: number,
+  year: number,
+  format: 'pdf' | 'excel',
+  courseId?: number,
+): Promise<AxiosResponse<Blob>> =>
+  axiosInstance.get('/api/reports/monthly-daily', {
+    params: { month, year, format, courseId },
+    responseType: 'blob',
+  });
+
+/**
+ * Download Course-wise Attendance Report as PDF or Excel.
+ * GET /api/reports/course-wise
+ */
+export const downloadCourseWiseReport = (
+  format: 'pdf' | 'excel',
+  courseId?: number,
+  startDate?: string,
+  endDate?: string,
+): Promise<AxiosResponse<Blob>> =>
+  axiosInstance.get('/api/reports/course-wise', {
+    params: { format, courseId, startDate, endDate },
+    responseType: 'blob',
+  });
+
+/**
+ * Download Student-wise Attendance Report as PDF or Excel.
+ * GET /api/reports/student-wise
+ */
+export const downloadStudentWiseReport = (
+  studentId: number,
+  format: 'pdf' | 'excel',
+  startDate?: string,
+  endDate?: string,
+): Promise<AxiosResponse<Blob>> =>
+  axiosInstance.get('/api/reports/student-wise', {
+    params: { studentId, format, startDate, endDate },
+    responseType: 'blob',
+  });
+
+
