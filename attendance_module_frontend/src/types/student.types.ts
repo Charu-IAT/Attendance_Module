@@ -6,6 +6,7 @@ export type AttendanceStatus = 'Present' | 'Absent' | 'Abscond';
 
 /** A student record returned by the backend REST API. */
 export interface StudentDTO {
+  attendanceDate: ReactNode;
   studentId: number;
   studentName: string;
   email: string;

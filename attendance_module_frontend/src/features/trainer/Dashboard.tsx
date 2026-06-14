@@ -171,7 +171,6 @@ export default function Dashboard() {
                     <strong>{s.studentName}</strong>
                     <span className="status-present">{s.courseName}</span>
                   </div>
-                  <span className="dash-activity__time">{s.studentDob}</span>
                 </div>
               ))
             )}
