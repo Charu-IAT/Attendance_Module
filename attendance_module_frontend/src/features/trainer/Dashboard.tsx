@@ -21,11 +21,14 @@ const today = new Date().toISOString().split('T')[0];
 export default function Dashboard() {
   const navigate = useNavigate();
   const trainerName = getUserName();
+  
 
   const [dashStats, setDashStats] = useState<TrainerDashboardDTO | null>(null);
   const [students, setStudents] = useState<StudentDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
@@ -48,7 +51,7 @@ export default function Dashboard() {
         setUserId(resolvedId); // cache so subsequent loads skip this step
       }
 
-      let dashData = { totalStudents: 0, presentToday: 0, absentToday: 0 };
+      let dashData = { totalStudents: 0, totalPresent: 0, totalAbsent: 0 };
       let studentsData: StudentDTO[] = [];
 
       try {
@@ -61,7 +64,7 @@ export default function Dashboard() {
       } catch (err) {
         const axiosErr = err as AxiosError;
         if (axiosErr.response?.status === 400 || axiosErr.response?.status === 404) {
-          dashData = { totalStudents: 0, presentToday: 0, absentToday: 0 };
+          dashData = { totalStudents: 0, totalPresent: 0, totalAbsent: 0 };
           
           if (!trainerCourseName) {
             const usersRes = await viewAllUsers();

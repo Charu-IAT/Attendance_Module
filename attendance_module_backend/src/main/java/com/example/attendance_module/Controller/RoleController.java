@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@CrossOrigin("*")
 @RequestMapping("/api")
 @Tag(name="Role Controller", description = "Role Based APIs")
 @RequiredArgsConstructor

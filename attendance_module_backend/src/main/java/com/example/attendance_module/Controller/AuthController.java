@@ -14,16 +14,17 @@ import com.example.attendance_module.Dto.Request.UserRequestDto;
 import com.example.attendance_module.Dto.Response.AuthResponseDto;
 import com.example.attendance_module.Dto.Response.UserResponseDto;
 import com.example.attendance_module.Service.AuthService;
+import com.example.attendance_module.Service.BlackListedTokenService;
 import com.example.attendance_module.Service.UserService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 @Tag(name = "Auth Controller",
 description = "Authentication APIs")
 public class AuthController {
@@ -31,6 +32,9 @@ public class AuthController {
     AuthService authService;
     @Autowired
     UserService userService;
+    @Autowired
+    private BlackListedTokenService blacklistedTokenService;
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -84,5 +88,20 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+
+            String token = authHeader.substring(7);
+
+            blacklistedTokenService.blacklistToken(token);
+        }
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

@@ -1,5 +1,7 @@
 // ─── Student Types ────────────────────────────────────────────────────────────
 
+import { ReactNode } from "react";
+
 export type Gender = 'Male' | 'Female' | 'Other';
 
 export type AttendanceStatus = 'Present' | 'Absent' | 'Abscond';

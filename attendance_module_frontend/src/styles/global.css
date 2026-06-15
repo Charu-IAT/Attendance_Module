@@ -30,9 +30,30 @@
   transition: 0.3s;
 }
 
+.dash-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.dash-pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dash-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .add-btn:hover {
   background: #e65c00;
 }
+
 
 .student-heading {
   display: flex;
@@ -412,7 +433,7 @@ body:has(.layout),
 }
 
 .layout {
-  --sidebar-width: 195px;
+  --sidebar-width: 120px;
   --sidebar-collapsed-width: 60px;
   display: flex;
   height: 100vh;
@@ -518,7 +539,7 @@ body:has(.layout),
   align-items: center;
   gap: 8px;
   color: #334155;
-  font-size: 12px;
+  font-size: 8px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -539,8 +560,8 @@ body:has(.layout),
 
 .sidebar .menu svg,
 .logout svg {
-  width: 15px;
-  height: 15px;
+  width: 10px;
+  height: 10px;
   flex: 0 0 auto;
 }
 
@@ -560,7 +581,7 @@ body:has(.layout),
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 8px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;

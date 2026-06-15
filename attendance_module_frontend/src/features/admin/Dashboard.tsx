@@ -18,7 +18,13 @@ export default function Dashboard() {
   const [activity, setActivity] = useState<AttendanceSummaryDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+  const totalPages = Math.ceil(activity.length / itemsPerPage);
+  const paginatedActivity = activity.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
   const fetchDashboard = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -95,30 +101,64 @@ export default function Dashboard() {
       <div className="dash-grid">
         {/* Recent Attendance Activity */}
         <div className="dash-card">
-          <h3 className="dash-card__title">Recent Attendance Activity</h3>
-          <div className="dash-activity">
-            {loading ? (
-              <p className="dash-empty">Loading…</p>
-            ) : activity.length === 0 ? (
-              <p className="dash-empty">No attendance records found.</p>
-            ) : (
-              activity.map((a) => (
-                <div className="dash-activity__row" key={a.attendanceId}>
-                  <span
-                    className={`dash-dot dash-dot--${a.attendanceStatus === 'Present' ? 'present' : 'absent'}`}
-                  />
-                  <div className="dash-activity__info">
-                    <strong>{a.studentName}</strong>
-                    <span className={a.attendanceStatus === 'Present' ? 'status-present' : 'status-absent'}>
-                      {a.attendanceStatus} · {a.courseName}
-                    </span>
-                  </div>
-                  <span className="dash-activity__time">{a.attendanceDate}</span>
-                </div>
-              ))
-            )}
+  <h3 className="dash-card__title">Recent Attendance Activity</h3>
+
+  <div className="dash-activity">
+    {loading ? (
+      <p className="dash-empty">Loading…</p>
+    ) : activity.length === 0 ? (
+      <p className="dash-empty">No attendance records found.</p>
+    ) : (
+      <>
+        {paginatedActivity.map((a) => (
+          <div className="dash-activity__row" key={a.attendanceId}>
+            <span
+              className={`dash-dot dash-dot--${
+                a.attendanceStatus === "Present" ? "present" : "absent"
+              }`}
+            />
+            <div className="dash-activity__info">
+              <strong>{a.studentName}</strong>
+              <span
+                className={
+                  a.attendanceStatus === "Present"
+                    ? "status-present"
+                    : "status-absent"
+                }
+              >
+                {a.attendanceStatus} · {a.courseName}
+              </span>
+            </div>
+            <span className="dash-activity__time">
+              {a.attendanceDate}
+            </span>
           </div>
+        ))}
+
+        {/* Pagination */}
+        <div className="dash-pagination">
+          <button
+            onClick={() => setCurrentPage((p) => p - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((p) => p + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
+      </>
+    )}
+  </div>
+</div>
 
         {/* Summary card */}
         <div className="dash-card">

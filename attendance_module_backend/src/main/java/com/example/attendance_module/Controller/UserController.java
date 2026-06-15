@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@CrossOrigin("*")
 @Tag(name="UserController", description="User APIs")
 @RequestMapping("/user")
 @RequiredArgsConstructor

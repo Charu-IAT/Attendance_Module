@@ -26,7 +26,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@CrossOrigin("*")
 @Tag(name="StudentController", description="Student APIs")
 @RequestMapping("/student")
 @RequiredArgsConstructor
