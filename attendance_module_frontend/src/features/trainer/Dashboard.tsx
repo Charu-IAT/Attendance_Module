@@ -107,7 +107,7 @@ export default function Dashboard() {
   const stats: StatWidget[] = [
     { label: 'Total Students',  value: dashStats?.totalStudents ?? students.length, icon: <FiUsers />,     tone: 'blue'   },
     { label: 'Present Today',   value: dashStats?.totalPresent  ?? '—',             icon: <FiUserCheck />, tone: 'green'  },
-    { label: 'Ongoing Student', value: courseList.length || '—',                   icon: <FiBookOpen />,  tone: 'orange' },
+    { label: 'Ongoing Student', value: students.length || '—',                   icon: <FiBookOpen />,  tone: 'orange' },
     { label: 'Absent Today',    value: dashStats?.totalAbsent   ?? '—',             icon: <FiUserX />,     tone: 'red'    },
   ];
 

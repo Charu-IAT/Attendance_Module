@@ -11,7 +11,7 @@ export default function AdminLayout() {
 
   return (
     <div className={`layout admin-layout${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
-      <Sidebar isCollapsed={isSidebarCollapsed} />
+      <Sidebar isCollapsed={isSidebarCollapsed}/>
 
       <div className="content">
         <Header

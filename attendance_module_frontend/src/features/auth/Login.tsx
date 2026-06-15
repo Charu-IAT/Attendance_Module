@@ -123,12 +123,6 @@ export default function Login() {
             </div>
 
             <div className="form-group">
-              <div className="label-row">
-                <label htmlFor="password">Password</label>
-                <button className="link-button" type="button">
-                  Forgot password?
-                </button>
-              </div>
               <div className="input-shell">
                 <FiLock aria-hidden="true" />
                 <input
@@ -147,10 +141,7 @@ export default function Login() {
               {loading ? 'Signing in…' : <>Sign in <span aria-hidden="true">-&gt;</span></>}
             </button>
 
-            <p className="request-access">
-              Need an attendance account?{' '}
-              <button type="button">Request access</button>
-            </p>
+           
           </form>
         </section>
       </main>

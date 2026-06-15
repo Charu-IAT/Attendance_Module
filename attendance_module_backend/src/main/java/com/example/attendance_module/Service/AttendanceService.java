@@ -173,7 +173,7 @@ public class AttendanceService {
         long totalStudents = studentRepo.countStudentsByCourseAsOfDate(trainer.getCourseId(), targetDate);
         long totalPresent = attendanceRepo.countByTrainerUserIdAndAttendanceDateAndAttendanceStatus(trainer.getUserId(), targetDate, AttendanceStatus.Present);
         long totalAbsent = attendanceRepo.countByTrainerUserIdAndAttendanceDateAndAttendanceStatus(trainer.getUserId(), targetDate, AttendanceStatus.Absent);
-        long totalOngoing = Math.max(0, totalStudents - totalPresent - totalAbsent);
+        long totalOngoing = Math.max(0, totalStudents);
 
         return DashboardResponse.builder()
                 .trainerId(trainer.getUserId())
