@@ -64,8 +64,8 @@ public class StudentService {
         if (createdDate.isAfter(LocalDate.now())) {
             throw new RuntimeException("Join date cannot be in the future");
         }
-        if (createdDate.isBefore(LocalDate.now().minusMonths(1))) {
-            throw new RuntimeException("Join date can be in the past only within 1 month");
+        if (createdDate.isBefore(LocalDate.now().minusMonths(4))) {
+            throw new RuntimeException("Join date can be in the past only within 4 month");
         }
     }
 
