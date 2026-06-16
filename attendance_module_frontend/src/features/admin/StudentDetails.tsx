@@ -332,6 +332,7 @@ export default function StudentDetails() {
                     <th>Gender</th>
                     <th>DOB</th>
                     <th>Course</th>
+                    <th>Trainer</th>
                     <th>Duration</th>
                     <th>Actions</th>
                   </tr>
@@ -339,7 +340,7 @@ export default function StudentDetails() {
                 <tbody>
                   {paginatedStudents.length === 0 ? (
                     <tr>
-                      <td colSpan={8} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
+                      <td colSpan={9} style={{ textAlign: 'center', padding: '2rem', opacity: 0.6 }}>
                         No students found.
                       </td>
                     </tr>
@@ -354,6 +355,7 @@ export default function StudentDetails() {
                         <td>
                           <span className="course-pill">{student.courseName}</span>
                         </td>
+                        <td>{student.trainerName || '—'}</td>
                         <td>
                           {student.courseDuration}{' '}
                           {student.courseDuration === 1 ? 'month' : 'months'}

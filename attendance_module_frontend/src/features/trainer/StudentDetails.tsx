@@ -157,6 +157,7 @@ export default function StudentDetails() {
                     <th>Gender</th>
                     <th>DOB</th>
                     <th>Course</th>
+                    <th>Trainer</th>
                     <th>Qualification</th>
                     <th>Actions</th>
                   </tr>
@@ -164,7 +165,7 @@ export default function StudentDetails() {
                 <tbody>
                   {paginatedStudents.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="empty-table-cell">
+                      <td colSpan={9} className="empty-table-cell">
                         <div className="empty-state-block">
                           <span className="empty-state-icon">👥</span>
                           <p>No students assigned to you yet.</p>
@@ -183,6 +184,7 @@ export default function StudentDetails() {
                         <td>
                           <span className="course-pill">{student.courseName}</span>
                         </td>
+                        <td>{student.trainerName || '—'}</td>
                         <td>{student.studentQualification}</td>
                         <td>
                           <div className="action-cell">
@@ -230,15 +232,16 @@ export default function StudentDetails() {
             <div className="modal-body student-form-grid">
               {(
                 [
-                  ['Name',           activeStudent.studentName],
-                  ['Email',          activeStudent.email],
-                  ['Gender',         activeStudent.studentGender],
-                  ['Date of Birth',  activeStudent.studentDob],
-                  ['Course',         activeStudent.courseName],
-                  ['Duration',       `${activeStudent.courseDuration} ${activeStudent.courseDuration === 1 ? 'month' : 'months'}`],
-                  ['Join Date',      activeStudent.createdDate],
-                  ['Qualification',  activeStudent.studentQualification],
-                  ['Address',        activeStudent.address],
+                  ['Name',             activeStudent.studentName],
+                  ['Email',            activeStudent.email],
+                  ['Gender',           activeStudent.studentGender],
+                  ['Date of Birth',    activeStudent.studentDob],
+                  ['Course',           activeStudent.courseName],
+                  ['Duration',         `${activeStudent.courseDuration} ${activeStudent.courseDuration === 1 ? 'month' : 'months'}`],
+                  ['Assigned Trainer', activeStudent.trainerName || '—'],
+                  ['Join Date',        activeStudent.createdDate],
+                  ['Qualification',    activeStudent.studentQualification],
+                  ['Address',          activeStudent.address],
                 ] as [string, string][]
               ).map(([label, value]) => (
                 <div className="form-group" key={label}>

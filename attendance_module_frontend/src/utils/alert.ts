@@ -41,10 +41,10 @@ export const confirmLogout = async () => {
     showCancelButton: true,
     confirmButtonText: 'Yes, log out',
     cancelButtonText: 'Cancel',
-    confirmButtonColor: '#aa3bff', // Purple accent color (matching app theme)
+    confirmButtonColor: '#f97316', // Orange confirmation color
     cancelButtonColor: '#6b7280',  // Grey neutral color
     background: '#ffffff',
-    iconColor: '#aa3bff',          // Purple question icon color
+    iconColor: '#f97316',          // Orange question icon color
     customClass: {
       popup: 'swal-premium-popup',
       title: 'swal-premium-title',
