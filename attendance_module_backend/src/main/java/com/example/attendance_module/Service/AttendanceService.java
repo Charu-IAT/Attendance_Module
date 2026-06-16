@@ -45,6 +45,15 @@ public class AttendanceService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    private boolean hasMultipleTrainers(Long courseId) {
+        if (courseId == null) return false;
+        List<User> trainers = userRepo.findByCourseId(courseId);
+        long trainerCount = trainers.stream()
+                .filter(u -> u.getRoleId() != null && u.getRoleId().equals(2L))
+                .count();
+        return trainerCount > 1;
+    }
+
     private void validateAttendanceDate(Student student, LocalDate date) {
         if (date != null && student.getCreatedDate() != null && date.isBefore(student.getCreatedDate())) {
             throw new RuntimeException("Cannot mark attendance before the student's join date (" + student.getCreatedDate() + ")");
@@ -60,6 +69,12 @@ public class AttendanceService {
 
         if (!student.getCourseId().equals(trainer.getCourseId())) {
             throw new RuntimeException("Not your course student");
+        }
+
+        if (hasMultipleTrainers(trainer.getCourseId())) {
+            if (student.getUserId() == null || !student.getUserId().equals(trainer.getUserId())) {
+                throw new RuntimeException("Not your course student");
+            }
         }
 
         LocalDate date = request.getAttendanceDate() != null
@@ -170,7 +185,12 @@ public class AttendanceService {
         verifyTrainerRole(trainer);
         LocalDate targetDate = date != null ? date : LocalDate.now();
 
-        long totalStudents = studentRepo.countStudentsByCourseAsOfDate(trainer.getCourseId(), targetDate);
+        long totalStudents;
+        if (hasMultipleTrainers(trainer.getCourseId())) {
+            totalStudents = studentRepo.countStudentsByTrainerAsOfDate(trainer.getUserId(), targetDate);
+        } else {
+            totalStudents = studentRepo.countStudentsByCourseAsOfDate(trainer.getCourseId(), targetDate);
+        }
         long totalPresent = attendanceRepo.countByTrainerUserIdAndAttendanceDateAndAttendanceStatus(trainer.getUserId(), targetDate, AttendanceStatus.Present);
         long totalAbsent = attendanceRepo.countByTrainerUserIdAndAttendanceDateAndAttendanceStatus(trainer.getUserId(), targetDate, AttendanceStatus.Absent);
         long totalOngoing = Math.max(0, totalStudents);
@@ -213,6 +233,12 @@ public class AttendanceService {
 
             if (!student.getCourseId().equals(trainer.getCourseId())) {
                 throw new RuntimeException("Not your course student");
+            }
+
+            if (hasMultipleTrainers(trainer.getCourseId())) {
+                if (student.getUserId() == null || !student.getUserId().equals(trainer.getUserId())) {
+                    throw new RuntimeException("Not your course student");
+                }
             }
 
             validateAttendanceDate(student, date);
@@ -270,6 +296,12 @@ public class AttendanceService {
 
         if (!student.getCourseId().equals(trainer.getCourseId())) {
             throw new RuntimeException("Not your course student");
+        }
+
+        if (hasMultipleTrainers(trainer.getCourseId())) {
+            if (student.getUserId() == null || !student.getUserId().equals(trainer.getUserId())) {
+                throw new RuntimeException("Not your course student");
+            }
         }
 
         LocalDate date = request.getAttendanceDate() != null

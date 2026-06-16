@@ -195,6 +195,15 @@ public class StudentService {
         }
 
 
+    private boolean hasMultipleTrainers(Long courseId) {
+        if (courseId == null) return false;
+        List<User> trainers = userRepo.findByCourseId(courseId);
+        long trainerCount = trainers.stream()
+                .filter(u -> u.getRoleId() != null && u.getRoleId().equals(2L))
+                .count();
+        return trainerCount > 1;
+    }
+
     public List<StudentResponseDto> getStudentsByTrainerUserId() {
 
     String email = SecurityContextHolder.getContext()
@@ -219,7 +228,12 @@ public class StudentService {
     Course course = courseRepo.findByCourseId(trainer.getCourseId())
             .orElseThrow(() -> new RuntimeException("Course not found"));
 
-    List<Student> students = studentRepo.findStudentByCourse(course.getCourseId());
+    List<Student> students;
+    if (hasMultipleTrainers(course.getCourseId())) {
+        students = studentRepo.findStudentByUserId(trainer.getUserId());
+    } else {
+        students = studentRepo.findStudentByCourse(course.getCourseId());
+    }
 
     return students.stream()
             .map(student -> studentCourseConnect(student, course))

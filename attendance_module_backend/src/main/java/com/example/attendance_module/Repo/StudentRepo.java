@@ -31,6 +31,9 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     @Query("SELECT s FROM Student s WHERE s.courseId = :courseId")
     List<Student> findStudentByCourse(@Param("courseId") Long courseId);
 
+    @Query("SELECT s FROM Student s WHERE s.userId = :userId")
+    List<Student> findStudentByUserId(@Param("userId") Long userId);
+
     long countByCourseId(Long courseId);
 
     @Query("SELECT COUNT(s) FROM Student s WHERE s.createdDate <= :date")
@@ -38,6 +41,9 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
 
     @Query("SELECT COUNT(s) FROM Student s WHERE s.courseId = :courseId AND s.createdDate <= :date")
     long countStudentsByCourseAsOfDate(@Param("courseId") Long courseId, @Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(s) FROM Student s WHERE s.userId = :trainerId AND s.createdDate <= :date")
+    long countStudentsByTrainerAsOfDate(@Param("trainerId") Long trainerId, @Param("date") LocalDate date);
 
     @Query("SELECT u FROM User u WHERE u.userName = :userName")
     Optional<User> findByUserName(@Param("userName") String userName);
