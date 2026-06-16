@@ -16,4 +16,6 @@ public class AuthResponseDto {
     private String message;
 
     private String roleName;
+
+    private Long userId;
 }

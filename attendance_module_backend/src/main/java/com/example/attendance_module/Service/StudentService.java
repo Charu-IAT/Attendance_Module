@@ -84,6 +84,10 @@ public class StudentService {
 
         validateDob(request.getStudentDob());
 
+        if (studentRepo.findByEmail(request.getEmail()) != null) {
+            throw new RuntimeException("Email is already in use by another student");
+        }
+
         String email = SecurityContextHolder.getContext()
             .getAuthentication()
             .getName();
@@ -198,6 +202,11 @@ public class StudentService {
 
         Student existing = studentRepo.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        Student emailOwner = studentRepo.findByEmail(request.getEmail());
+        if (emailOwner != null && !emailOwner.getStudentId().equals(studentId)) {
+            throw new RuntimeException("Email is already in use by another student");
+        }
 
         existing.setStudentName(request.getStudentName());
         existing.setEmail(request.getEmail());

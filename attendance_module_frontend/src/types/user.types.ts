@@ -41,3 +41,22 @@ export interface UserRequestPayload {
   roleId: number;
   courseId?: number | null;
 }
+
+/** Payload for POST /api/auth/forgot-password */
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+/** Payload for POST /api/auth/verify-otp */
+export interface VerifyOtpPayload {
+  email: string;
+  otp: string;
+}
+
+/** Payload for POST /api/auth/reset-password */
+export interface ResetPasswordPayload {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
+

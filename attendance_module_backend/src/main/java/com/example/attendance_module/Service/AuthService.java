@@ -54,6 +54,7 @@ public class AuthService {
                 .token(token)
                 .message("Login successful")
                 .roleName(role.getRoleName())
+                .userId(user.getUserId())
                 .build();
     }
 }

@@ -9,13 +9,18 @@ const axiosInstance = axios.create({
   },
 });
 
-// Attach the JWT Bearer token to every outgoing request except the login endpoint.
-// Sending a stale token on /api/auth/login causes Spring Security to reject
+// Attach the JWT Bearer token to every outgoing request except public auth endpoints.
+// Sending a stale token on login/register causes Spring Security to reject
 // the request with 401 before it even validates the credentials.
 axiosInstance.interceptors.request.use(
   (config) => {
-    const isAuthEndpoint = config.url?.includes('/api/auth/');
-    if (!isAuthEndpoint) {
+    const isPublicAuth =
+      config.url?.includes('/api/auth/login') ||
+      config.url?.includes('/api/auth/register') ||
+      config.url?.includes('/api/auth/forgot-password') ||
+      config.url?.includes('/api/auth/verify-otp') ||
+      config.url?.includes('/api/auth/reset-password');
+    if (!isPublicAuth) {
       const token = getToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;

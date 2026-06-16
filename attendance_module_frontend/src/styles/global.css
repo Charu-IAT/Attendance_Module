@@ -573,6 +573,11 @@ body:has(.layout),
 }
 
 .logout {
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
   min-height: 52px;
   padding: 14px 20px;
   border-top: 1px solid #e5e7eb;

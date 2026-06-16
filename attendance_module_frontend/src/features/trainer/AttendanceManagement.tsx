@@ -90,16 +90,17 @@ export default function AttendanceManagement() {
         let trainerCourseName: string | null = null;
 
         if (resolvedId === null) {
-          const usersRes = await viewAllUsers();
-          const match = usersRes.data.find((u) => u.userName === trainerName);
-          if (!match) {
-            setError('Could not find your account. Please log in again.');
-            setLoading(false);
-            return;
+          try {
+            const usersRes = await viewAllUsers();
+            const match = usersRes.data.find((u) => u.userName === trainerName);
+            if (match) {
+              resolvedId = match.userId;
+              trainerCourseName = match.courseName;
+              setUserId(resolvedId);
+            }
+          } catch (err) {
+            console.warn('Non-fatal: Could not resolve trainer ID from user list:', err);
           }
-          resolvedId = match.userId;
-          trainerCourseName = match.courseName;
-          setUserId(resolvedId);
         }
 
         let studentsData: StudentDTO[] = [];
@@ -117,13 +118,22 @@ export default function AttendanceManagement() {
           if (axiosErr.response?.status === 400 || axiosErr.response?.status === 404) {
             // Try course fallback
             if (!trainerCourseName) {
-              const usersRes = await viewAllUsers();
-              const match = usersRes.data.find((u) => u.userName === trainerName);
-              trainerCourseName = match?.courseName ?? null;
+              try {
+                const usersRes = await viewAllUsers();
+                const match = usersRes.data.find((u) => u.userName === trainerName);
+                trainerCourseName = match?.courseName ?? null;
+              } catch (uErr) {
+                console.warn('Non-fatal: Could not resolve trainer course from user list:', uErr);
+              }
             }
             if (trainerCourseName) {
-              const fallbackRes = await getStudentsByCourse(trainerCourseName);
-              studentsData = fallbackRes.data;
+              try {
+                const fallbackRes = await getStudentsByCourse(trainerCourseName);
+                studentsData = fallbackRes.data;
+              } catch (fbErr) {
+                console.warn('Non-fatal: Fallback course fetch failed:', fbErr);
+                studentsData = [];
+              }
             } else {
               studentsData = [];
             }

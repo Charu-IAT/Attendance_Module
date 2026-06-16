@@ -419,3 +419,36 @@ body:has(.login-page) {
     font-size: 15px;
   }
 }
+
+/* ── Password Toggle Button ── */
+.login-page .password-toggle-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin-right: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #9ca3af;
+  border-radius: 6px;
+  transition: color 180ms ease, background-color 180ms ease;
+  flex: 0 0 auto;
+}
+
+.login-page .input-shell:focus-within .password-toggle-btn {
+  color: #ea580c;
+}
+
+.login-page .password-toggle-btn:hover {
+  background-color: rgba(234, 88, 12, 0.08);
+  color: #374151 !important;
+}
+
+.login-page .input-shell:focus-within .password-toggle-btn:hover {
+  color: #c2410c !important;
+}
+
+.login-page .password-toggle-btn svg {
+  color: inherit !important;
+}

@@ -5,6 +5,7 @@ import { getAllCourses, addCourse, updateCourse, deleteCourse } from '../../api/
 import { useToast } from '../../hooks/useToast';
 import Pagination from '../../components/Pagination';
 import type { AxiosError } from 'axios';
+import { confirmDelete } from '../../utils/alert';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -170,12 +171,11 @@ export default function Course() {
   };
 
   const handleDelete = async (course: CourseDTO) => {
-    if (
-      !window.confirm(
-        `Delete course "${course.courseName}"? This will disassociate all assigned students and trainers, and delete all associated attendance records. This cannot be undone.`
-      )
-    )
-      return;
+    const result = await confirmDelete(
+      'Delete course?',
+      `Delete course "${course.courseName}"? This will disassociate all assigned students and trainers, and delete all associated attendance records. This cannot be undone.`
+    );
+    if (!result.isConfirmed) return;
 
     setDeleting(course.courseId);
     try {

@@ -75,3 +75,33 @@ p {
   margin: 0;
 }
 
+/* SweetAlert2 Premium Customizations */
+.swal-premium-popup {
+  border-radius: 16px !important;
+  font-family: var(--sans) !important;
+  padding: 2rem !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.swal-premium-title {
+  font-family: var(--heading) !important;
+  font-size: 1.35rem !important;
+  font-weight: 600 !important;
+  color: var(--text-h) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.swal-premium-text {
+  font-size: 0.9rem !important;
+  color: var(--text) !important;
+  line-height: 1.5 !important;
+}
+
+.swal-premium-confirm-btn, .swal-premium-cancel-btn {
+  padding: 0.6rem 1.25rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+}
+
+

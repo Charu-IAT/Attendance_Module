@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   FiClipboard,
   FiGrid,
@@ -9,6 +9,10 @@ import {
   FiLayers,
 } from 'react-icons/fi';
 import type { ReactNode } from 'react';
+import { clearAuth } from '../hooks/useAuth';
+import { logoutUser } from '../api/services';
+import { useToast } from '../hooks/useToast';
+import { confirmLogout } from '../utils/alert';
 
 interface MenuItem {
   label: string;
@@ -38,6 +42,25 @@ interface SidebarProps {
 export default function Sidebar({ isCollapsed = false }: SidebarProps) {
   const isTrainerPanel = window.location.pathname.startsWith('/trainer');
   const menuItems = isTrainerPanel ? trainerMenuItems : adminMenuItems;
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  const handleLogout = async () => {
+    const result = await confirmLogout();
+    if (!result.isConfirmed) return;
+
+    try {
+      await logoutUser();
+      toast.success('Logged out successfully');
+    } catch (err) {
+      console.error('Logout error on backend:', err);
+      toast.error('Logged out (session cleared)');
+    } finally {
+      clearAuth();
+      sessionStorage.clear();
+      navigate('/');
+    }
+  };
 
   return (
     <div className={`sidebar${isCollapsed ? ' collapsed' : ''}`}>
@@ -68,10 +91,15 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
         </ul>
       </div>
 
-      <NavLink className="logout" to="/" title={isCollapsed ? 'Logout' : undefined}>
+      <button
+        className="logout"
+        type="button"
+        onClick={handleLogout}
+        title={isCollapsed ? 'Logout' : undefined}
+      >
         <FiLogOut />
         <span>Logout</span>
-      </NavLink>
+      </button>
     </div>
   );
 }

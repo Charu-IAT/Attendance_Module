@@ -14,6 +14,7 @@ import type { UserDTO } from '../../types/user.types';
 import { useToast } from '../../hooks/useToast';
 import Pagination from '../../components/Pagination';
 import type { AxiosError } from 'axios';
+import { confirmDelete } from '../../utils/alert';
 
 // ─── Form shape (matches StudentPayload + view helpers) ───────────────────────
 
@@ -221,7 +222,11 @@ export default function StudentDetails() {
 
   // ── DELETE /student/delete/{studentId} ───────────────────────────────────────
   const handleDelete = async (student: StudentDTO) => {
-    if (!window.confirm(`Delete "${student.studentName}"? This cannot be undone.`)) return;
+    const result = await confirmDelete(
+      'Delete student?',
+      `Delete "${student.studentName}"? This cannot be undone.`
+    );
+    if (!result.isConfirmed) return;
 
     setDeleting(student.studentId);
     try {

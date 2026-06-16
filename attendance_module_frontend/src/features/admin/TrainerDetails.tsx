@@ -19,6 +19,7 @@ import { getAllCourses } from '../../api/services';
 import { useToast } from '../../hooks/useToast';
 import Pagination from '../../components/Pagination';
 import type { AxiosError } from 'axios';
+import { confirmDelete } from '../../utils/alert';
 
 // roleId=2 maps to "trainer" on the backend
 const TRAINER_ROLE_ID = 2;
@@ -197,7 +198,12 @@ export default function TrainerDetails() {
 
   // ─── Delete ─────────────────────────────────────────────────────────────────
   const handleDelete = async (trainer: UserDTO) => {
-    if (!window.confirm(`Delete trainer "${trainer.userName}"? This cannot be undone.`)) return;
+    const result = await confirmDelete(
+      'Delete trainer?',
+      `Delete trainer "${trainer.userName}"? This cannot be undone.`
+    );
+    if (!result.isConfirmed) return;
+
     setDeleting(trainer.userId);
     try {
       await deleteUser(trainer.userId);

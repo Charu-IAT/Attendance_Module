@@ -6,7 +6,11 @@ import type {
   UpdateUserPayload,
   UserDTO,
   UserRequestPayload,
+  ForgotPasswordPayload,
+  VerifyOtpPayload,
+  ResetPasswordPayload,
 } from '../types/user.types';
+import type { LogoutResponse } from '../types/logout.types';
 import type { StudentDTO, StudentPayload } from '../types/student.types';
 import type { CourseDTO, CoursePayload } from '../types/course.types';
 import type {
@@ -37,6 +41,40 @@ export const registerUser = (
   data: UserRequestPayload,
 ): Promise<AxiosResponse<UserDTO>> =>
   axiosInstance.post('/api/auth/register', data);
+
+/**
+ * Logout the authenticated user.
+ * POST /api/auth/logout
+ */
+export const logoutUser = (): Promise<AxiosResponse<LogoutResponse>> =>
+  axiosInstance.post('/api/auth/logout');
+
+/**
+ * Request password reset OTP.
+ * POST /api/auth/forgot-password
+ */
+export const forgotPassword = (
+  data: ForgotPasswordPayload,
+): Promise<AxiosResponse<{ message: string }>> =>
+  axiosInstance.post('/api/auth/forgot-password', data);
+
+/**
+ * Verify OTP.
+ * POST /api/auth/verify-otp
+ */
+export const verifyOtp = (
+  data: VerifyOtpPayload,
+): Promise<AxiosResponse<{ message: string }>> =>
+  axiosInstance.post('/api/auth/verify-otp', data);
+
+/**
+ * Reset password using OTP.
+ * POST /api/auth/reset-password
+ */
+export const resetPassword = (
+  data: ResetPasswordPayload,
+): Promise<AxiosResponse<{ message: string }>> =>
+  axiosInstance.post('/api/auth/reset-password', data);
 
 // ─── User ─────────────────────────────────────────────────────────────────────
 
