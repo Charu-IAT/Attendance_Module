@@ -6,12 +6,15 @@ import { getUserName } from '../hooks/useAuth';
 import '../styles/global.css';
 
 export default function AdminLayout() {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.innerWidth < 768);
   const userName = getUserName();
 
   return (
     <div className={`layout admin-layout${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
-      <Sidebar isCollapsed={isSidebarCollapsed}/>
+      <Sidebar isCollapsed={isSidebarCollapsed} onClose={() => setIsSidebarCollapsed(true)} />
+      {!isSidebarCollapsed && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarCollapsed(true)} />
+      )}
 
       <div className="content">
         <Header

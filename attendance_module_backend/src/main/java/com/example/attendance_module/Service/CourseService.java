@@ -55,20 +55,15 @@ public class CourseService {
                                                              .build()).toList();
     }
 
+    @jakarta.transaction.Transactional
     public CourseResponseDto updateCourseById(Long courseId, CourseRequestDto request){
-
-        Long result = courseRepo.updateCourse(
-            request.getCourseName(),
-            request.getCourseDuration(),
-            courseId
-        );
-
-        if(result == 0){
-            throw new RuntimeException("Course not found");
-        }
 
         Course course=courseRepo.findByCourseId(courseId)
                    .orElseThrow(()->new RuntimeException("Course not in this courseId"));
+
+        course.setCourseName(request.getCourseName());
+        course.setCourseDuration(request.getCourseDuration());
+        courseRepo.save(course);
 
         return CourseResponseDto.builder()
                                 .courseId(course.getCourseId())

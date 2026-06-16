@@ -1,5 +1,6 @@
 package com.example.attendance_module.Dto.Response;
 
+import jakarta.servlet.http.Cookie;
 import lombok.*;
 
 @Getter
@@ -18,4 +19,6 @@ public class AuthResponseDto {
     private String roleName;
 
     private Long userId;
+
+    
 }

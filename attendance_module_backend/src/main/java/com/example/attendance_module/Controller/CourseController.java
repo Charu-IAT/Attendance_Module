@@ -19,6 +19,7 @@ import com.example.attendance_module.Dto.Response.CourseResponseDto;
 import com.example.attendance_module.Service.CourseService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,7 +34,7 @@ public class CourseController {
 
 
  @PostMapping("/addcourse")
- public CourseResponseDto createCourse(@RequestBody CourseRequestDto request){
+ public CourseResponseDto createCourse(@Valid @RequestBody CourseRequestDto request){
     return courseService.createCourse(request);
     
  }
@@ -46,7 +47,7 @@ public class CourseController {
 
  @PreAuthorize("hasAnyAuthority('ROLE_admin')")
  @PutMapping("/getcourse/{courseId}")
- public CourseResponseDto updateCourse(@PathVariable Long courseId,@RequestBody CourseRequestDto request){
+ public CourseResponseDto updateCourse(@PathVariable Long courseId, @Valid @RequestBody CourseRequestDto request){
    return courseService.updateCourseById(courseId, request);
  }
 

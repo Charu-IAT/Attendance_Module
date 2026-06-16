@@ -15,6 +15,7 @@ import { useToast } from '../../hooks/useToast';
 import Pagination from '../../components/Pagination';
 import type { AxiosError } from 'axios';
 import { confirmDelete } from '../../utils/alert';
+import { validateEmail } from '../../utils/validation';
 
 // ─── Form shape (matches StudentPayload + view helpers) ───────────────────────
 
@@ -168,6 +169,37 @@ export default function StudentDetails() {
       return;
     }
 
+    if (formData.studentName.trim().length > 20) {
+      toast.error('Student Name must be at most 20 characters.');
+      return;
+    }
+
+    const emailTrimmed = formData.email.trim();
+    if (!validateEmail(emailTrimmed)) {
+      toast.error('Email cannot accept emojis or special symbols.');
+      return;
+    }
+
+    // Validate Join Date (createdDate)
+    const [joinYear, joinMonth, joinDay] = formData.createdDate.split('-').map(Number);
+    const [todayYear, todayMonth, todayDay] = today.split('-').map(Number);
+
+    const joinDate = new Date(joinYear, joinMonth - 1, joinDay);
+    const todayDate = new Date(todayYear, todayMonth - 1, todayDay);
+
+    if (joinDate > todayDate) {
+      toast.error('Join date cannot be in the future.');
+      return;
+    }
+
+    const minJoinDate = new Date(todayYear, todayMonth - 1, todayDay);
+    minJoinDate.setMonth(minJoinDate.getMonth() - 1);
+
+    if (joinDate < minJoinDate) {
+      toast.error('Join date can be in the past only within 1 month.');
+      return;
+    }
+
     const payload: StudentPayload = {
       studentName: formData.studentName.trim(),
       email: formData.email.trim(),
@@ -316,7 +348,7 @@ export default function StudentDetails() {
                       <tr key={student.studentId}>
                         <td>{startIndex + index + 1}</td>
                         <td>{student.studentName}</td>
-                        <td>{student.email}</td>
+                        <td className="email-cell" title={student.email}>{student.email}</td>
                         <td>{student.studentGender}</td>
                         <td>{student.studentDob}</td>
                         <td>
@@ -410,6 +442,7 @@ export default function StudentDetails() {
                   onChange={handleChange}
                   disabled={saving}
                   required
+                  maxLength={20}
                 />
               </div>
 

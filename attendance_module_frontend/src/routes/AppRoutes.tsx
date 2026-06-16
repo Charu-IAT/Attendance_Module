@@ -21,6 +21,7 @@ export default function AppRoutes() {
       <Routes>
         {/* Login */}
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Navigate to="/" replace />} />
 
         {/* Admin */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

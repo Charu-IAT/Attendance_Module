@@ -20,6 +20,7 @@ import { useToast } from '../../hooks/useToast';
 import Pagination from '../../components/Pagination';
 import type { AxiosError } from 'axios';
 import { confirmDelete } from '../../utils/alert';
+import { validateEmail } from '../../utils/validation';
 
 // roleId=2 maps to "trainer" on the backend
 const TRAINER_ROLE_ID = 2;
@@ -149,6 +150,17 @@ export default function TrainerDetails() {
 
     if (modalMode === 'add' && !formData.password.trim()) {
       toast.error('Please enter a password for the new trainer.');
+      return;
+    }
+
+    if (formData.userName.trim().length > 20) {
+      toast.error('Trainer Name must be at most 20 characters.');
+      return;
+    }
+
+    const emailTrimmed = formData.email.trim();
+    if (!validateEmail(emailTrimmed)) {
+      toast.error('Email cannot accept emojis or special symbols.');
       return;
     }
 
@@ -291,7 +303,7 @@ export default function TrainerDetails() {
                       <tr key={trainer.userId}>
                         <td>{startIndex + index + 1}</td>
                         <td>{trainer.userName}</td>
-                        <td>{trainer.email}</td>
+                        <td className="email-cell" title={trainer.email}>{trainer.email}</td>
                         <td>
                           {trainer.courseName ? (
                             <span className="course-pill">{trainer.courseName}</span>
@@ -372,6 +384,7 @@ export default function TrainerDetails() {
                   onChange={handleChange}
                   required
                   disabled={saving}
+                  maxLength={20}
                 />
               </div>
 

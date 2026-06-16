@@ -121,6 +121,10 @@ export default function Course() {
       toast.error('Please enter a course name.');
       return;
     }
+    if (trimmedName.length > 20) {
+      toast.error('Course Name must be at most 20 characters.');
+      return;
+    }
     if (!formData.courseDuration || isNaN(duration) || duration <= 0) {
       toast.error('Please enter a valid duration (months).');
       return;
@@ -363,6 +367,7 @@ export default function Course() {
                   onChange={handleChange}
                   disabled={isViewMode || saving}
                   autoFocus={!isViewMode}
+                  maxLength={20}
                 />
               </div>
 
@@ -374,7 +379,7 @@ export default function Course() {
                   name="courseDuration"
                   placeholder="e.g., 6"
                   min={1}
-                  max={36}
+                  max={12}
                   value={formData.courseDuration}
                   onChange={handleChange}
                   disabled={isViewMode || saving}

@@ -64,7 +64,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @RequestBody AuthRequestDto request) {
+            @Valid @RequestBody AuthRequestDto request) {
 
         try {
             AuthResponseDto response =

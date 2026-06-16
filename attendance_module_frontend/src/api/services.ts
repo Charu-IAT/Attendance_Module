@@ -79,6 +79,13 @@ export const resetPassword = (
 // ─── User ─────────────────────────────────────────────────────────────────────
 
 /**
+ * Fetch currently logged in user's profile details.
+ * GET /user/profile
+ */
+export const getCurrentUserProfile = (): Promise<AxiosResponse<UserDTO>> =>
+  axiosInstance.get('/user/profile');
+
+/**
  * Fetch all users regardless of role.
  * GET /user/viewUser
  */

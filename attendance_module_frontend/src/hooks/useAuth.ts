@@ -10,6 +10,36 @@ const KEYS = {
   USER_ID:   'userId',
 } as const;
 
+const ENCRYPTION_KEY = 'attendance-secret-salt-key-987';
+
+function encryptToken(token: string): string {
+  if (!token) return '';
+  let hex = '';
+  for (let i = 0; i < token.length; i++) {
+    const charCode = token.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length);
+    hex += charCode.toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
+function decryptToken(encryptedToken: string | null): string | null {
+  if (!encryptedToken) return null;
+  if (encryptedToken.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(encryptedToken)) {
+    return encryptedToken;
+  }
+  try {
+    let decrypted = '';
+    for (let i = 0; i < encryptedToken.length; i += 2) {
+      const hexPart = encryptedToken.substring(i, i + 2);
+      const charCode = parseInt(hexPart, 16) ^ ENCRYPTION_KEY.charCodeAt((i / 2) % ENCRYPTION_KEY.length);
+      decrypted += String.fromCharCode(charCode);
+    }
+    return decrypted;
+  } catch (e) {
+    return encryptedToken;
+  }
+}
+
 export interface AuthInfo {
   token: string;
   userName: string;
@@ -19,7 +49,7 @@ export interface AuthInfo {
 
 /** Persist all auth fields returned on login. */
 export function setAuth(info: AuthInfo): void {
-  localStorage.setItem(KEYS.TOKEN,     info.token);
+  localStorage.setItem(KEYS.TOKEN,     encryptToken(info.token));
   localStorage.setItem(KEYS.USER_NAME, info.userName);
   localStorage.setItem(KEYS.ROLE_NAME, info.roleName);
   if (info.userId !== undefined) {
@@ -36,7 +66,7 @@ export function clearAuth(): void {
 }
 
 export function getToken(): string | null {
-  return localStorage.getItem(KEYS.TOKEN);
+  return decryptToken(localStorage.getItem(KEYS.TOKEN));
 }
 
 export function getUserName(): string {

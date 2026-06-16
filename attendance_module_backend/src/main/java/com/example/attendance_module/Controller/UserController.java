@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.attendance_module.Dto.Request.UpdatedUserRequestDto;
 import com.example.attendance_module.Dto.Response.UserResponseDto;
 import com.example.attendance_module.Service.UserService;
+import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +51,7 @@ public class UserController{
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
     public UserResponseDto updateUser(
             @PathVariable Long userId,
-            @RequestBody UpdatedUserRequestDto request) {
+            @Valid @RequestBody UpdatedUserRequestDto request) {
 
         return userService.updateUser(userId, request);
     }
@@ -60,10 +60,13 @@ public class UserController{
     @DeleteMapping("/deleteUser/{userId}")
     @PreAuthorize("hasAnyAuthority('ROLE_admin')")
     public String deleteUser(@PathVariable Long userId) {
-
         return userService.deleteUser(userId);
     }
 
-   
-    
+    @GetMapping("/profile")
+    @PreAuthorize("hasAnyAuthority('ROLE_admin','ROLE_trainer')")
+    public UserResponseDto getProfile() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return userService.getProfileByEmail(email);
+    }
 }

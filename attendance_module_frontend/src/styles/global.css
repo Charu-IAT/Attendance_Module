@@ -89,8 +89,8 @@
 
 .custom-table th {
   text-align: left;
-  padding: 16px 20px;
-  font-size: 14px;
+  padding: 12px 16px;
+  font-size: 13px;
   font-weight: 700;
   color: #0f172a;
   border-bottom: 1px solid #e5e7eb;
@@ -99,8 +99,8 @@
 }
 
 .custom-table td {
-  padding: 16px 20px;
-  font-size: 14px;
+  padding: 12px 16px;
+  font-size: 13px;
   color: #334155;
   border-bottom: 1px solid #e5e7eb;
   white-space: nowrap;
@@ -109,6 +109,13 @@
 
 /* Allow only Name cell to wrap (it has the avatar flex row) */
 .custom-table td .student-name-cell {
+  white-space: nowrap;
+}
+
+.custom-table td.email-cell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -389,18 +396,45 @@
 ========================================== */
 
 @media (max-width: 768px) {
-  .student-heading {
-    flex-direction: column;
-    margin-bottom: 28px;
+  .student-heading,
+  .trainer-heading.student-heading {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    margin-bottom: 28px !important;
   }
 
-  .student-heading .add-btn {
-    width: 100%;
+  .student-heading > div:last-child,
+  .trainer-heading.student-heading > div:last-child {
+    width: 100% !important;
+    display: flex !important;
+  }
+
+  .student-heading .add-btn,
+  .trainer-heading.student-heading .add-btn {
+    width: 100% !important;
+    flex: 1 !important;
   }
 
   .custom-table {
-    display: block;
-    overflow-x: auto;
+    display: table !important;
+    width: 100% !important;
+  }
+
+  .custom-table th,
+  .custom-table td {
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .course-pill {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+
+  .icon-btn {
+    margin-right: 6px !important;
+    font-size: 14px !important;
   }
 
   .modal-box {
@@ -478,20 +512,24 @@ body:has(.layout),
 .sidebar .menu span,
 .logout span {
   overflow: hidden;
-  white-space: nowrap;
+  white-space: normal;
   transition: opacity 0.18s ease, width 0.18s ease;
 }
 
 .sidebar.collapsed .brand {
-  justify-content: center;
-  padding-inline: 20px;
+  justify-content: center !important;
+  padding: 0 !important;
+  height: 68px !important;
+  gap: 0 !important;
 }
 
 .sidebar.collapsed .brand-text,
 .sidebar.collapsed .menu span,
 .sidebar.collapsed .logout span {
-  width: 0;
-  opacity: 0;
+  display: none !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .brand-icon {
@@ -531,7 +569,7 @@ body:has(.layout),
 
 .sidebar .menu {
   min-height: 38px;
-  padding: 0 10px;
+  padding: 6px 10px;
   margin-bottom: 4px;
   border-radius: 7px;
   cursor: pointer;
@@ -539,23 +577,34 @@ body:has(.layout),
   align-items: center;
   gap: 8px;
   color: #334155;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 600;
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sidebar.collapsed ul {
-  padding-inline: 10px;
+  padding: 24px 0 !important;
 }
 
 .sidebar.collapsed .menu,
 .sidebar.collapsed .logout {
-  justify-content: center;
-  padding-inline: 0;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  width: 40px !important;
+  margin-inline: auto !important;
+  border-radius: 10px !important;
+  gap: 0 !important;
+}
+
+.sidebar.collapsed .logout {
+  margin-bottom: 20px !important;
 }
 
 .sidebar .menu svg,
@@ -578,18 +627,18 @@ body:has(.layout),
   border: none;
   font-family: inherit;
   text-align: left;
-  min-height: 52px;
-  padding: 14px 20px;
+  min-height: 42px;
+  padding: 10px 20px;
   border-top: 1px solid #e5e7eb;
   color: #ef0000;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 600;
   text-decoration: none;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .content {
@@ -1396,61 +1445,157 @@ TRAINER DASHBOARD CSS
 
 @media (max-width: 760px) {
   .layout {
-    --sidebar-width: 78px;
+    --sidebar-width: 240px;
     --sidebar-collapsed-width: 0px;
   }
 
-  .sidebar {
-    width: var(--sidebar-width);
+  /* Slide-out drawer sidebar on mobile */
+  .sidebar,
+  .trainer-layout .sidebar,
+  .admin-layout .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: var(--sidebar-width) !important;
+    height: 100vh !important;
+    z-index: 20 !important;
+    transform: translateX(0) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 5px 0 25px rgba(15, 23, 42, 0.15) !important;
   }
 
+  /* Slide-out offscreen when collapsed */
+  .sidebar.collapsed,
+  .trainer-layout.sidebar-collapsed .sidebar,
+  .admin-layout.sidebar-collapsed .sidebar {
+    transform: translateX(-100%) !important;
+    width: var(--sidebar-width) !important;
+    flex-basis: var(--sidebar-width) !important;
+  }
+
+  /* Sidebar backdrop overlay style */
+  .sidebar-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 15 !important;
+    animation: fadeIn 0.2s ease-out !important;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Since the sidebar slides over content on mobile, content margin-left should be 0 */
+  .content,
+  .trainer-layout .content,
+  .admin-layout .content,
+  .layout.sidebar-collapsed .content,
+  .trainer-layout.sidebar-collapsed .content,
+  .admin-layout.sidebar-collapsed .content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Brand styles in mobile sidebar */
   .brand {
-    height: 86px;
-    justify-content: center;
-    padding: 18px 12px;
+    height: 68px !important;
+    padding: 0 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
   }
 
+  /* Explicitly ensure brand text, menu text, and logout text are shown since sidebar has full width */
   .brand-text,
   .sidebar .menu span,
   .logout span {
-    width: 0;
-    opacity: 0;
+    width: auto !important;
+    opacity: 1 !important;
+    display: inline-block !important;
+    white-space: nowrap !important;
   }
 
   .sidebar ul {
-    padding: 20px 12px;
+    padding: 24px 16px !important;
   }
 
   .sidebar .menu,
   .logout {
-    justify-content: center;
-    padding-inline: 0;
+    justify-content: flex-start !important;
+    padding: 0 16px !important;
   }
 
   .logout {
-    min-height: 70px;
+    min-height: 56px !important;
   }
 
+  /* Modern row-based responsive header - avoids overlapping/stacking profile details */
   .header {
-    height: auto;
-    min-height: 86px;
-    padding: 18px 22px;
-    gap: 18px;
-    align-items: flex-start;
-    flex-direction: column;
+    height: 72px !important;
+    min-height: 72px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important;
+    gap: 12px !important;
   }
 
   .header-title {
-    width: 100%;
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
   }
 
-  .content {
-    margin-left: var(--sidebar-width);
+  .header-title h1 {
+    font-size: 20px !important;
+  }
+
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
   }
 
   .profile {
-    padding-left: 0;
-    border-left: 0;
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 12px !important;
+    border-left: 1px solid #e5e7eb !important;
+    gap: 10px !important;
+  }
+
+  .profile-avatar {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 20px !important;
+  }
+
+  .profile h4 {
+    font-size: 14px !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    max-width: 110px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    color: #020617 !important;
+    font-weight: 700 !important;
+  }
+
+  /* Hide role and details in mobile header to save space */
+  .profile span {
+    display: none !important;
   }
 
 
@@ -1769,15 +1914,15 @@ TRAINER DASHBOARD CSS
 }
 
 .trainer-table th {
-  padding: 26px 30px;
+  padding: 12px 16px;
   color: #020617;
-  font-size: 16px;
+  font-size: 13px;
 }
 
 .trainer-table td {
-  padding: 26px 30px;
+  padding: 12px 16px;
   color: #334155;
-  font-size: 20px;
+  font-size: 13px;
 }
 
 .trainer-table td:first-child {
@@ -1787,12 +1932,12 @@ TRAINER DASHBOARD CSS
 .trainer-table .course-pill {
   background: #dcfce7;
   color: #007a38;
-  font-size: 16px;
+  font-size: 12px;
 }
 
 .trainer-table .icon-btn {
-  margin-right: 22px;
-  font-size: 23px;
+  margin-right: 12px;
+  font-size: 16px;
 }
 
 .student-details-page .table-panel {
@@ -2054,7 +2199,7 @@ body,
 
 .trainer-layout,
 .admin-layout {
-  --sidebar-width: 300px;
+  --sidebar-width: 220px;
   width: 100%;
   height: 100vh;
   min-height: 100vh;
@@ -2070,7 +2215,7 @@ body,
 .trainer-layout .brand,
 .admin-layout .brand {
   height: 96px;
-  padding: 22px 28px;
+  padding: 22px 20px;
   gap: 14px;
 }
 
@@ -2099,26 +2244,26 @@ body,
 
 .trainer-layout .sidebar .menu,
 .admin-layout .sidebar .menu {
-  min-height: 60px;
-  margin-bottom: 14px;
-  padding: 0 22px;
-  gap: 14px;
-  font-size: 20px;
+  min-height: 48px;
+  margin-bottom: 10px;
+  padding: 0 16px;
+  gap: 12px;
+  font-size: 14px;
 }
 
 .trainer-layout .sidebar .menu svg,
 .admin-layout .sidebar .menu svg,
 .trainer-layout .logout svg,
 .admin-layout .logout svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 
 .trainer-layout .logout,
 .admin-layout .logout {
-  min-height: 72px;
-  padding: 18px 40px;
-  font-size: 20px;
+  min-height: 56px;
+  padding: 14px 16px;
+  font-size: 14px;
 }
 
 .trainer-layout .content {
@@ -2299,23 +2444,23 @@ body,
 }
 
 .trainer-table th {
-  padding: 20px 30px;
-  font-size: 16px;
+  padding: 12px 16px !important;
+  font-size: 13px !important;
 }
 
 .trainer-table td {
-  padding: 22px 30px;
-  font-size: 20px;
+  padding: 12px 16px !important;
+  font-size: 13px !important;
 }
 
 .trainer-table .course-pill {
-  padding: 7px 14px;
-  font-size: 16px;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
 }
 
 .trainer-table .icon-btn {
-  margin-right: 18px;
-  font-size: 22px;
+  margin-right: 12px !important;
+  font-size: 16px !important;
 }
 
 .student-details-page .table-panel,
@@ -2450,7 +2595,7 @@ body,
 
 @media (max-width: 1366px) {
   .trainer-layout {
-    --sidebar-width: 260px;
+    --sidebar-width: 200px;
   }
 
   .trainer-layout .content {
@@ -2458,20 +2603,20 @@ body,
   }
 
   .trainer-layout .brand {
-    padding: 20px;
+    padding: 20px 14px;
   }
 
   .trainer-layout .sidebar ul {
-    padding: 26px 18px;
+    padding: 26px 14px;
   }
 
   .trainer-layout .sidebar .menu {
-    padding: 0 18px;
+    padding: 0 14px;
     font-size: 18px;
   }
 
   .trainer-layout .logout {
-    padding-inline: 34px;
+    padding-inline: 20px;
     font-size: 18px;
   }
 
@@ -2521,12 +2666,12 @@ body,
 
   .trainer-table th,
   .trainer-table td {
-    padding-left: 24px;
-    padding-right: 24px;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 
   .trainer-table td {
-    font-size: 18px;
+    font-size: 13px !important;
   }
 }
 
@@ -3285,8 +3430,8 @@ body,
 
   .custom-table th,
   .custom-table td {
-    padding: 14px 12px;
-    font-size: 13px;
+    padding: 10px 8px !important;
+    font-size: 12px !important;
   }
 
   .trainer-heading h1,
@@ -4241,4 +4386,193 @@ body,
   font-size: 14px;
   color: #94a3b8;
   padding: 0 4px;
+}
+
+/* ==========================================
+   INTERACTIVE PROFILE & MODAL STYLES
+========================================== */
+
+.interactive-profile {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  padding: 6px 12px;
+  border-radius: 12px;
+  outline: none;
+}
+
+.interactive-profile:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  transform: translateY(-1px);
+}
+
+.interactive-profile:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.3);
+}
+
+.profile-modal-overlay {
+  animation: fadeIn 0.25s ease-out;
+}
+
+.profile-modal-box {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 460px !important;
+  width: 90% !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.profile-modal-body {
+  padding: 30px !important;
+}
+
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.profile-hero-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff8008 0%, #ffc837 100%);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  box-shadow: 0 10px 20px rgba(255, 102, 0, 0.2);
+  margin-bottom: 16px;
+  border: 4px solid #ffffff;
+}
+
+.profile-hero h3 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.profile-role-badge {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #fff7ed;
+  color: #ff6600;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 102, 0, 0.25);
+}
+
+.profile-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-label svg {
+  color: #ff6600;
+  font-size: 13px;
+}
+
+.detail-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.profile-actions-row {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.edit-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.edit-profile-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+}
+
+.edit-profile-btn svg {
+  font-size: 15px;
+}
+
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-edit-form .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.profile-edit-form .form-group label svg {
+  color: #ff6600;
+}
+
+.profile-modal-footer {
+  margin-top: 10px;
+  display: flex;
+  gap: 12px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }

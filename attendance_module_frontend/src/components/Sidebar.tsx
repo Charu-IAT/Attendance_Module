@@ -37,13 +37,20 @@ const trainerMenuItems: MenuItem[] = [
 
 interface SidebarProps {
   isCollapsed?: boolean;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ isCollapsed = false }: SidebarProps) {
+export default function Sidebar({ isCollapsed = false, onClose }: SidebarProps) {
   const isTrainerPanel = window.location.pathname.startsWith('/trainer');
   const menuItems = isTrainerPanel ? trainerMenuItems : adminMenuItems;
   const navigate = useNavigate();
   const toast = useToast();
+
+  const handleItemClick = () => {
+    if (window.innerWidth < 768 && onClose) {
+      onClose();
+    }
+  };
 
   const handleLogout = async () => {
     const result = await confirmLogout();
@@ -56,6 +63,9 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
       console.error('Logout error on backend:', err);
       toast.error('Logged out (session cleared)');
     } finally {
+      if (window.innerWidth < 768 && onClose) {
+        onClose();
+      }
       clearAuth();
       sessionStorage.clear();
       navigate('/');
@@ -82,6 +92,7 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
                 className={({ isActive }) => (isActive ? 'menu active' : 'menu')}
                 to={item.path}
                 title={isCollapsed ? item.label : undefined}
+                onClick={handleItemClick}
               >
                 {item.icon}
                 <span>{item.label}</span>

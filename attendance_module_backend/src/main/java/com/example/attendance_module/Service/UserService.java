@@ -15,6 +15,7 @@ import com.example.attendance_module.Model.User;
 import com.example.attendance_module.Repo.CourseRepo;
 import com.example.attendance_module.Repo.RoleRepo; 
 import com.example.attendance_module.Repo.UserRepo; 
+import com.example.attendance_module.Repo.StudentRepo;
 import lombok.RequiredArgsConstructor; 
 
 @Service 
@@ -28,6 +29,8 @@ public class UserService {
     BCryptPasswordEncoder passwordEncoder; 
     @Autowired
     CourseRepo courseRepo;
+    @Autowired
+    StudentRepo studentRepo;
     
    public UserResponseDto createUser(UserRequestDto request) {
 
@@ -151,24 +154,50 @@ public class UserService {
 
           
     
+    @jakarta.transaction.Transactional
     public UserResponseDto updateUser(Long userId, UpdatedUserRequestDto request) {
 
     Role role = roleRepository.findById(request.getRoleId())
             .orElseThrow(() -> new RuntimeException("Role not found"));
 
-    int result = userRepository.updateUser(
-            userId,
-            request.getUserName(),
-            request.getEmail(),
-            role.getRoleId()
-    );
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
-    if (result == 0) {
-        throw new RuntimeException("User not found");
+    if (request.getEmail() != null) {
+        java.util.Optional<User> existingUserWithEmail = userRepository.findByEmail(request.getEmail());
+        if (existingUserWithEmail.isPresent() && !existingUserWithEmail.get().getUserId().equals(userId)) {
+            throw new RuntimeException("Email already exists");
+        }
     }
 
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found after update"));
+    user.setUserName(request.getUserName());
+    user.setEmail(request.getEmail());
+    user.setRoleId(role.getRoleId());
+
+    if (role.getRoleId() != null && role.getRoleId() == 2) {
+        if (request.getCourseId() == null) {
+            throw new RuntimeException("Course Id is required for Trainer");
+        }
+        Course course = courseRepo.findById(request.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        
+        if (user.getCourseId() == null || !user.getCourseId().equals(course.getCourseId())) {
+            user.setCourseId(course.getCourseId());
+            studentRepo.updateCourseForTrainer(course.getCourseId(), userId);
+        }
+    } else if (role.getRoleId() != null && role.getRoleId() == 1) {
+        if (request.getCourseId() != null) {
+            Course course = courseRepo.findById(request.getCourseId())
+                    .orElseThrow(() -> new RuntimeException("Course not found"));
+            user.setCourseId(course.getCourseId());
+        } else {
+            user.setCourseId(null);
+        }
+    } else {
+        user.setCourseId(null);
+    }
+
+    userRepository.save(user);
 
     Course course = user.getCourseId() != null ? courseRepo.findById(user.getCourseId()).orElse(null) : null;
 
@@ -180,6 +209,21 @@ public class UserService {
             .courseName(course != null ? course.getCourseName() : null)
             .build();
 }
+
+    public UserResponseDto getProfileByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Role role = roleRepository.findById(user.getRoleId())
+                .orElse(null);
+        Course course = user.getCourseId() != null ? courseRepo.findById(user.getCourseId()).orElse(null) : null;
+        return UserResponseDto.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .roleName(role != null ? role.getRoleName() : null)
+                .courseName(course != null ? course.getCourseName() : null)
+                .build();
+    }
 
     public String deleteUser(Long userId) {
 

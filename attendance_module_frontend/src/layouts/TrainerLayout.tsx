@@ -18,7 +18,7 @@ function readTrainerSession(): TrainerSession | null {
 }
 
 export default function TrainerLayout() {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.innerWidth < 768);
 
   const trainerName = useMemo(() => {
     const trainer = readTrainerSession();
@@ -27,7 +27,10 @@ export default function TrainerLayout() {
 
   return (
     <div className={`layout trainer-layout${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
-      <Sidebar isCollapsed={isSidebarCollapsed} />
+      <Sidebar isCollapsed={isSidebarCollapsed} onClose={() => setIsSidebarCollapsed(true)} />
+      {!isSidebarCollapsed && (
+        <div className="sidebar-backdrop" onClick={() => setIsSidebarCollapsed(true)} />
+      )}
 
       <div className="content">
         <Header

@@ -46,6 +46,9 @@ public class StudentService {
     if (dob.isAfter(LocalDate.now())) {
         throw new RuntimeException("Date of Birth cannot be in the future");
     }
+    if (dob.isBefore(LocalDate.now().minusYears(70))) {
+            throw new RuntimeException("Dob is too old");
+        }
 
     int age = Period.between(dob, LocalDate.now()).getYears();
 
@@ -54,8 +57,22 @@ public class StudentService {
     }
 }
 
+    private void validateCreatedDate(LocalDate createdDate) {
+        if (createdDate == null) {
+            throw new RuntimeException("Join date is required");
+        }
+        if (createdDate.isAfter(LocalDate.now())) {
+            throw new RuntimeException("Join date cannot be in the future");
+        }
+        if (createdDate.isBefore(LocalDate.now().minusMonths(1))) {
+            throw new RuntimeException("Join date can be in the past only within 1 month");
+        }
+    }
+
+
     private StudentResponseDto toStudentResponseDto(Student student, Course course) {
         User trainer = student.getUserId() != null ? userRepo.findById(student.getUserId()).orElse(null) : null;
+        
         return StudentResponseDto.builder()
                 .studentId(student.getStudentId())
                 .studentName(student.getStudentName())
@@ -99,16 +116,28 @@ public class StudentService {
             throw new AccessDeniedException("Only Admin can add student details");
         }
 
+        LocalDate joinDate = request.getCreatedDate() != null ? request.getCreatedDate() : LocalDate.now();
+        validateCreatedDate(joinDate);
+
+        Long finalCourseId = request.getCourseId();
+        if (request.getTrainerId() != null) {
+            User trainer = userRepo.findById(request.getTrainerId())
+                    .orElseThrow(() -> new RuntimeException("Trainer not found"));
+            if (trainer.getCourseId() != null) {
+                finalCourseId = trainer.getCourseId();
+            }
+        }
+
         Student student=Student.builder()
                             .studentName(request.getStudentName())
                             .email(request.getEmail())
                             .studentGender(request.getStudentGender())
                             .studentDob(request.getStudentDob())
                             .address(request.getAddress())
-                            .courseId(request.getCourseId())
+                            .courseId(finalCourseId)
                             .userId(request.getTrainerId())
                             .studentQualification(request.getStudentQualification())
-                            .createdDate(request.getCreatedDate() != null ? request.getCreatedDate() : LocalDate.now())
+                            .createdDate(joinDate)
                             .build();
 
                 studentRepo.save(student);
@@ -208,16 +237,26 @@ public class StudentService {
             throw new RuntimeException("Email is already in use by another student");
         }
 
+        Long finalCourseId = request.getCourseId();
+        if (request.getTrainerId() != null) {
+            User trainer = userRepo.findById(request.getTrainerId())
+                    .orElseThrow(() -> new RuntimeException("Trainer not found"));
+            if (trainer.getCourseId() != null) {
+                finalCourseId = trainer.getCourseId();
+            }
+        }
+
         existing.setStudentName(request.getStudentName());
         existing.setEmail(request.getEmail());
         existing.setStudentGender(request.getStudentGender());
         existing.setStudentDob(request.getStudentDob());
         existing.setStudentQualification(request.getStudentQualification());
         existing.setAddress(request.getAddress());
-        existing.setCourseId(request.getCourseId());
+        existing.setCourseId(finalCourseId);
         existing.setUserId(request.getTrainerId());
         
         if (request.getCreatedDate() != null) {
+            validateCreatedDate(request.getCreatedDate());
             existing.setCreatedDate(request.getCreatedDate());
         }
 

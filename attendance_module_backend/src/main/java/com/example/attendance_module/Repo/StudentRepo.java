@@ -78,4 +78,9 @@ public interface StudentRepo extends JpaRepository<Student, Long> {
     @Transactional
     @Query("UPDATE Student s SET s.courseId = null WHERE s.courseId = :courseId")
     void disassociateCourse(@Param("courseId") Long courseId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Student s SET s.courseId = :courseId WHERE s.userId = :trainerId")
+    void updateCourseForTrainer(@Param("courseId") Long courseId, @Param("trainerId") Long trainerId);
 }

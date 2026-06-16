@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiCalendar, FiLock, FiMail, FiEye, FiEyeOff } from 'react-icons/fi';
 import { loginUser, viewAllUsers, forgotPassword, resetPassword } from '../../api/services';
-import { setAuth, setUserId, getToken, getRole } from '../../hooks/useAuth';
+import { setAuth, setUserId } from '../../hooks/useAuth';
 import type { AxiosError } from 'axios';
 import { useToast } from '../../hooks/useToast';
+import { validateEmail } from '../../utils/validation';
 import './Login.css';
 
 interface ApiErrorResponse {
@@ -16,18 +17,6 @@ export default function Login() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  // Redirect to dashboard if already logged in
-  useEffect(() => {
-    const token = getToken();
-    const role = getRole();
-    if (token) {
-      if (role === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else if (role === 'trainer') {
-        navigate('/trainer/dashboard', { replace: true });
-      }
-    }
-  }, [navigate]);
 
   // Login States
   const [email, setEmail] = useState('');
@@ -37,8 +26,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   // Forgot Password States
-  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(true);
-  const [forgotPasswordStep, setForgotPasswordStep] = useState<'email' | 'otp'>('otp');
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
+  const [forgotPasswordStep, setForgotPasswordStep] = useState<'email' | 'otp'>('email');
   const [forgotEmail, setForgotEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -49,10 +38,17 @@ export default function Login() {
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
+
+    const emailTrimmed = email.trim();
+    if (!validateEmail(emailTrimmed)) {
+      setError('Email cannot accept emojis or special symbols.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await loginUser({ email, password });
+      const response = await loginUser({ email: emailTrimmed, password });
       const { token, userName, roleName, userId } = response.data;
 
       // Persist token first so the follow-up call can attach the Bearer header
@@ -107,10 +103,17 @@ export default function Login() {
   const handleRequestOtp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
+
+    const emailTrimmed = forgotEmail.trim();
+    if (!validateEmail(emailTrimmed)) {
+      setError('Email cannot accept emojis or special symbols.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await forgotPassword({ email: forgotEmail });
+      await forgotPassword({ email: emailTrimmed });
       toast.success('OTP sent successfully to your email.');
       setForgotPasswordStep('otp');
     } catch (err) {
@@ -134,7 +137,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await resetPassword({ email: forgotEmail, otp, newPassword });
+      await resetPassword({ email: forgotEmail.trim(), otp, newPassword });
       toast.success('Password reset successfully. Please login with your new password.');
       handleCancelForgotPassword();
     } catch (err) {

@@ -177,7 +177,7 @@ export default function StudentDetails() {
                       <tr key={student.studentId}>
                         <td className="row-num">{startIndex + index + 1}</td>
                         <td>{student.studentName}</td>
-                        <td className="text-muted">{student.email}</td>
+                        <td className="text-muted email-cell" title={student.email}>{student.email}</td>
                         <td>{student.studentGender}</td>
                         <td className="text-muted">{student.studentDob}</td>
                         <td>
